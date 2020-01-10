@@ -65,6 +65,8 @@ Scale::~Scale() {}
  * 
  */
 void Scale::begin(){
+  // Make sure LEDs are off first thing
+  ledRGBStatus(0,0,0);
   pinMode(scale_print_button, INPUT);
   attachInterrupt(digitalPinToInterrupt(scale_print_button),this->Scale::print_pb_isr,CHANGE);     //this calls 'print_pb()' when user presses print button on cs-19
   // RS232 comm with xBee Radio
