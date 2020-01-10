@@ -144,6 +144,7 @@ String processor(const String& var) {
 }
 
 void setup() {
+  
   // TODO uint8_t cardType;
   Serial.begin(115200);                      // start serial port 0 (debug monitor and programming port)
   scale.begin();

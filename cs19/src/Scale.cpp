@@ -118,6 +118,12 @@ void Scale::begin(){
         x = x-1; 
       }
     } 
+
+    readScale();
+    if (units == LBOZ  && isBootUp) {
+      unitsBtn();
+      isBootUp = false;
+    }
 }
 
 /**

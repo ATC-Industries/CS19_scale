@@ -22,6 +22,7 @@ class Scale {
         bool no_sig_flag = 0;           // flag to prevent display from updating on no change of No Signal message
         char output_string[31];         // converted data to send out
         String legRemWeigh = "";
+        bool isBootUp = true;
 
         int RXD2 = 25;                             //define pins to use with uart 2
         int TXD2 = 27;
