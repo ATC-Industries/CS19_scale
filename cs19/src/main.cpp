@@ -204,7 +204,7 @@ void setup() {
 
   server.on("/getlegacyweight", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getLegacyWeight().c_str());
-    Serial.println(scale.getLegacyWeight());
+    //Serial.println(scale.getLegacyWeight());
   });
 
   
