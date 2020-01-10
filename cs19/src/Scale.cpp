@@ -118,12 +118,6 @@ void Scale::begin(){
         x = x-1; 
       }
     } 
-
-    readScale();
-    if (units == LBOZ  && isBootUp) {
-      unitsBtn();
-      isBootUp = false;
-    }
 }
 
 /**
@@ -142,6 +136,11 @@ void Scale::print_pb_isr(){                                          //This is a
  * 
  */
 void Scale::readScale(){
+  if (units == LBOZ  && isBootUp) {
+    unitsBtn();
+    isBootUp = false;
+    Serial.println("Units Button Pressed");
+  }
   static int rx2_pointer;                       //pointer for rs 232 port 2 rx string  
   bool process_buffer_flag = 0;              //flag to signal to process rx2 string 
   bool lock_flag = 0;                        //flag for lock condition
