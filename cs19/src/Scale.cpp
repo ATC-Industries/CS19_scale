@@ -117,7 +117,7 @@ void Scale::begin(){
         delay(250);
         x = x-1; 
       }
-    } 
+    }    
 }
 
 /**
@@ -136,11 +136,6 @@ void Scale::print_pb_isr(){                                          //This is a
  * 
  */
 void Scale::readScale(){
-  if (units == LBOZ  && isBootUp) {
-    unitsBtn();
-    isBootUp = false;
-    Serial.println("Units Button Pressed");
-  }
   static int rx2_pointer;                       //pointer for rs 232 port 2 rx string  
   bool process_buffer_flag = 0;              //flag to signal to process rx2 string 
   bool lock_flag = 0;                        //flag for lock condition
@@ -284,7 +279,32 @@ void Scale::readScale(){
 
     decimalCounter = 0;
     clear_buffer();                           //clear the rs232 buffer
+
   }
+
+  preferences.begin("my-app", false);
+  // Match startup units to last used units
+  if (isBootUp) {
+    if (units != lastUnits) {
+      unitsBtn();
+      Serial.println("Units Button Pressed");
+    } else {
+      isBootUp = false;
+    }
+  }
+
+  // Lock "odometer" counter
+  // check if locked status changed
+  if (isLocked != lastLockedStatus) {
+    // if it did and the scale is locked increment locked counter by 1
+    if (isLocked == true) {
+      lockedCounter++;
+      preferences.putUInt("lockedCounter", lockedCounter);
+    }
+    // regardless change lastLockedStatus to match current isLocked
+    lastLockedStatus = isLocked;  
+  }
+  preferences.end();
 }
 
 /**

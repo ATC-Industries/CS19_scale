@@ -12,6 +12,9 @@
  */
 #include <Arduino.h>
 #include <vector> 
+#include <Preferences.h>
+
+Preferences preferences;
 
 class Scale {
     private:
@@ -46,6 +49,10 @@ class Scale {
         Status status = VALID;
         char outLb[2];
         char outOz[4];
+
+        unsigned int lockedCounter = preferences.getUInt("lockedCounter", 0);
+        unsigned int lastUnits = preferences.getUInt("lastUnits", units);
+        bool lastLockedStatus = isLocked;
 
 
         /**
