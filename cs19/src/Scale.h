@@ -14,8 +14,6 @@
 #include <vector> 
 #include <Preferences.h>
 
-Preferences preferences;
-
 class Scale {
     private:
         char radio_rx_array[31];        // array being recieved on xbee radio
@@ -50,9 +48,11 @@ class Scale {
         char outLb[2];
         char outOz[4];
 
+        Preferences preferences;
         unsigned int lockedCounter = preferences.getUInt("lockedCounter", 0);
-        unsigned int lastUnits = preferences.getUInt("lastUnits", units);
+        unsigned int lastUnits = preferences.getUInt("lastUnits", LBOZ);
         bool lastLockedStatus = isLocked;
+        Units oldUnits = units;
 
 
         /**

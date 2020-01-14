@@ -283,6 +283,12 @@ void Scale::readScale(){
   }
 
   preferences.begin("my-app", false);
+
+  if (units != oldUnits) {
+    preferences.putUInt("lastUnits", units);
+    oldUnits = units;
+  }
+
   // Match startup units to last used units
   if (isBootUp) {
     if (units != lastUnits) {
