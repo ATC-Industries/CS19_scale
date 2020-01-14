@@ -158,6 +158,7 @@ void Scale::readScale(){
       rx2_buffer[0] = 0x02;                               //set first character to 0x02
       rx2_pointer = 0;                                    //reset the pointer
       decimalCounter = 0;
+      
       break;
     case 0x2E:
       decimalCounter++;
@@ -190,6 +191,7 @@ void Scale::readScale(){
       break;
     case 0x0D:
       process_buffer_flag = 1;                            //set flag so code will process buffer
+
       break;
     default:
       break;
@@ -309,9 +311,7 @@ void Scale::checkPref(){
     Serial.println("units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits));
     if (static_cast<int>(units) != lastUnits) {
       unitsBtn();
-      //delay(500);
-      Serial.println("Units Button Pressed - units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits) + " oldUnits: " + String(static_cast<int>(oldUnits)));
-    } else {
+      } else {
       isBootUp = false;
       Serial.println("isBootUp False");
     }
