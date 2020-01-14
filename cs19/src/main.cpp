@@ -77,9 +77,22 @@ String processStringForRemote(String weight, String oz) {
   }
   else { 
     s = weight;                                      // must be in Kg or Lb mode 
+    int decimalCounter = 0;
     s.replace(" ", "");                         // delete all the spaces
-    if (s.toFloat() < 0.1) {                    // check if value is less than .01
-      s = " 0.00";                              //  if it is just display zeros
+    // loop through weight to see if there are no decimals
+    for (int i = 0; i < s.length(); i++) {
+      if (s[i] == '.') {
+        decimalCounter++;
+      } 
+    }
+    if (decimalCounter > 0) {
+      if (s.toFloat() < 0.1) {                    // check if value is less than .01
+        s = " 0.00";                              //  if it is just display zeros
+      }
+    } else {
+      if (s.toInt() < 5) {
+        s = "   0";
+      }
     }
   }                                             // otherwise business as usual
 
