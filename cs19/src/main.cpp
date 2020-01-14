@@ -153,6 +153,9 @@ String processor(const String& var) {
   else if (var == "LASTLOCKED") {
     return scale.getLastLocked();
   }
+  else if (var == "LOCKODO") {
+    return scale.getLockOdo();
+  }
   return String();
 }
 

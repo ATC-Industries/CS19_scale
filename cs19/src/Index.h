@@ -58,6 +58,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   <div id="locked">%LOCKED%</div>
   <h5>Last Locked Weight: <span id="lastLocked">%LASTLOCKED%</span></h5>
 <p class="text-right"><small>FW: <span id="version">%VERSION%</span> <small></p>
+<p class="text-right"><small>LC: <span id="lockedCounter">%LOCKODO%</span> <small></p>
 
 <!-- Button trigger modal -->
 <div class="p-2">
@@ -174,6 +175,19 @@ setInterval(function ( ) {
   xhttp.open("GET", "/getLastLocked", true);
   xhttp.send();
 }, 200 ) ;
+
+// Get last Locked
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("lockedCounter").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/getLockedOdo", true);
+  xhttp.send();
+}, 200 ) ;
+
 
 </script>
 

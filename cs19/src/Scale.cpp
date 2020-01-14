@@ -65,6 +65,13 @@ Scale::~Scale() {}
  * 
  */
 void Scale::begin(){
+  isBootUp = true;
+  preferences.begin("my-app", false);
+  lockedCounter = preferences.getUInt("lockedCounter", 0);
+  Serial.println("Total number of Locks: " + String(lockedCounter));
+  units = NOTUSED;
+  lastUnits = preferences.getUInt("lastUnits", static_cast<int>(units));
+  preferences.end();
   // Make sure LEDs are off first thing
   ledRGBStatus(0,0,0);
   pinMode(scale_print_button, INPUT);
@@ -160,9 +167,11 @@ void Scale::readScale(){
       break;
     case 'L':
       units = LB;
+      checkPref();
       break;
     case 'K':
       units = KG;
+      checkPref();
       break;
     case 'G':
       tareMode = GROSS;
@@ -196,6 +205,7 @@ void Scale::readScale(){
     // }
     if (decimalCounter >= 2) {
       units = LBOZ;
+      checkPref();
     }
     if (++ rx2_pointer >= 24){                //increment pointer and check for overflow
       rx2_pointer = 0;                        //reset pointer on buffer overflow
@@ -280,22 +290,30 @@ void Scale::readScale(){
     decimalCounter = 0;
     clear_buffer();                           //clear the rs232 buffer
 
-  }
+  } 
+}
 
-  preferences.begin("my-app", false);
+void Scale::checkPref(){
+   preferences.begin("my-app", false);
 
-  if (units != oldUnits) {
-    preferences.putUInt("lastUnits", units);
-    oldUnits = units;
+  if (!isBootUp) {
+    if (units != oldUnits) {
+      preferences.putUInt("lastUnits", static_cast<int>(units));
+      Serial.println("Save Units to: " + String(static_cast<int>(units)));
+      oldUnits = units;
+    }
   }
 
   // Match startup units to last used units
   if (isBootUp) {
-    if (units != lastUnits) {
+    Serial.println("units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits));
+    if (static_cast<int>(units) != lastUnits) {
       unitsBtn();
-      Serial.println("Units Button Pressed");
+      //delay(500);
+      Serial.println("Units Button Pressed - units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits) + " oldUnits: " + String(static_cast<int>(oldUnits)));
     } else {
       isBootUp = false;
+      Serial.println("isBootUp False");
     }
   }
 
@@ -305,6 +323,7 @@ void Scale::readScale(){
     // if it did and the scale is locked increment locked counter by 1
     if (isLocked == true) {
       lockedCounter++;
+      Serial.println("Total number of Locks: " + String(lockedCounter));
       preferences.putUInt("lockedCounter", lockedCounter);
     }
     // regardless change lastLockedStatus to match current isLocked
@@ -312,6 +331,7 @@ void Scale::readScale(){
   }
   preferences.end();
 }
+
 
 /**
  * @brief Clears scale buffer
@@ -427,6 +447,10 @@ String Scale::getLockStatus() {
  */
 String Scale::getLastLocked() {
 return lastLocked;
+}
+
+String Scale::getLockOdo() {
+  return String(lockedCounter);
 }
 
 String Scale::getLb() {

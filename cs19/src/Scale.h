@@ -23,7 +23,7 @@ class Scale {
         bool no_sig_flag = 0;           // flag to prevent display from updating on no change of No Signal message
         char output_string[31];         // converted data to send out
         String legRemWeigh = "";
-        bool isBootUp = true;
+        bool isBootUp;
 
         int RXD2 = 25;                             //define pins to use with uart 2
         int TXD2 = 27;
@@ -32,7 +32,7 @@ class Scale {
         int lockLedBlue = 12;                      // green lock len on front panel
         int scale_print_button = 32;               //this pin generates an interrupt when activity is deteced on serial port controlled by console print button
         char rx2_buffer[25];                       //rs 232 port 2 recieve string from scale
-        enum Units { LB, LBOZ, KG };    // Units datatype
+        enum Units { LB, LBOZ, KG, NOTUSED };    // Units datatype
         enum Taremode { NET, GROSS };
         enum Status { VALID, MOTION, OVERUNDER };
 
@@ -42,15 +42,15 @@ class Scale {
         char weight[30] = " ";                     //array to hold weight value
         String lastLocked;            // last loocked value
         String lockedOz;
-        Units units = LB;
+        Units units; // = NOTUSED;
         Taremode tareMode = GROSS;
         Status status = VALID;
         char outLb[2];
         char outOz[4];
 
         Preferences preferences;
-        unsigned int lockedCounter = preferences.getUInt("lockedCounter", 0);
-        unsigned int lastUnits = preferences.getUInt("lastUnits", LBOZ);
+        unsigned int lockedCounter; // = preferences.getUInt("lockedCounter", 0);
+        unsigned int lastUnits; // = preferences.getUInt("lastUnits", static_cast<int>(units));
         bool lastLockedStatus = isLocked;
         Units oldUnits = units;
 
@@ -110,6 +110,7 @@ class Scale {
         String getStatus();
         String getLockStatus();
         String getLastLocked();
+        String getLockOdo();
         String getLockedOz();
         String getLb();
         String getOz();
@@ -121,6 +122,7 @@ class Scale {
         void netMode();
         void unitsBtn();
         void printBtn();
+        void checkPref();
 };
 
 #endif
