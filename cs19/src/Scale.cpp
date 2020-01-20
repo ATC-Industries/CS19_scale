@@ -141,8 +141,15 @@ void Scale::print_pb_isr(){                                          //This is a
   //insert code here to execute when cs19 print button is pressed
   // NOTE this routine will be called for every character coming in off of serial port.
   // need code eliminate duplicates
-  Serial.println("Print button pressed");                    //***diagnostic*** to check that esp32 is ack the print button
-  changePrintStatus(true);
+   static unsigned long last_interrupt_time = 0;
+   unsigned long interrupt_time = millis();
+    // If interrupts come faster than 200ms, assume it's a bounce and ignore
+    if (interrupt_time - last_interrupt_time > 200)
+    {
+      Serial.println("Print button pressed");                    //***diagnostic*** to check that esp32 is ack the print button
+      changePrintStatus(true);
+    }
+    last_interrupt_time = interrupt_time;
 }
 
 /**

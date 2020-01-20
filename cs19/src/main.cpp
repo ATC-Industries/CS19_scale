@@ -219,8 +219,8 @@ void setup() {
     Serial.println(scale.getWeight());
   });
   server.on("/isprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", scale.getPrintButtonStatus().c_str());
-    scale.changePrintStatus(false);
+    request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
+    scale.changePrintStatus(false); 
     // Serial.println(scale.getWeight());
   });
 
@@ -279,7 +279,7 @@ server.on(
     //Serial.println("locked status Sent");
   });
   server.on("/getLastLocked", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", scale.getLastLocked().c_str());
+    request->send(200, "text/plain", scale.getLastLocked().c_str());
     //Serial.println("last locked value Sent");
   });
   // Route to load style.css file
