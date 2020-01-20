@@ -15,7 +15,7 @@
  * 
  */
 Scale::Scale() {
-
+isPrintPressed = false;
 }
 
 /**
@@ -27,6 +27,7 @@ Scale::Scale() {
 Scale::Scale(int rx, int tx){
   RXD2 = rx;
   TXD2 = tx;
+  isPrintPressed = false;
 }
 
 /**
@@ -40,6 +41,7 @@ Scale::Scale(int rx, int tx, int lockLed){
   RXD2 = rx;
   TXD2 = tx;
   lockLedRed = lockLed;
+  isPrintPressed = false;
 }
 
 /**
@@ -55,6 +57,7 @@ Scale::Scale(int rx, int tx, int lockLed, int printPin){
   TXD2 = tx;
   lockLedRed = lockLed;
   scale_print_button = printPin;
+  isPrintPressed = false;
 }
 
 Scale::~Scale() {}
@@ -65,6 +68,7 @@ Scale::~Scale() {}
  * 
  */
 void Scale::begin(){
+  
   isBootUp = true;
   preferences.begin("my-app", false);
   lockedCounter = preferences.getUInt("lockedCounter", 0);
@@ -136,6 +140,7 @@ void Scale::print_pb_isr(){                                          //This is a
   // NOTE this routine will be called for every character coming in off of serial port.
   // need code eliminate duplicates
   Serial.println("Print button pressed");                    //***diagnostic*** to check that esp32 is ack the print button
+  Scale::isPrintPressed = true;
 }
 
 /**
@@ -505,6 +510,14 @@ void Scale::ledRGBStatus(bool red, bool green, bool blue) {
     }
 
 
+}
+
+String Scale::getPrintButtonStatus() {
+  if (isPrintPressed) {
+    return "1";
+  } else {
+    return "0";
+  }
 }
 
 void Scale::zeroBtn(){

@@ -218,6 +218,12 @@ void setup() {
     request->send_P(200, "text/plain", scale.getWeight().c_str());
     Serial.println(scale.getWeight());
   });
+  server.on("/isprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", scale.getPrintButtonStatus().c_str());
+    scale.isPrintPressed = false;
+    // Serial.println(scale.getWeight());
+  });
+
 
   server.on("/getlegacyweight", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getLegacyWeight().c_str());

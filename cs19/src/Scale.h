@@ -25,6 +25,7 @@ class Scale {
         String legRemWeigh = "";
         bool isBootUp;
 
+
         int RXD2 = 25;                             //define pins to use with uart 2
         int TXD2 = 27;
         int lockLedRed = 13;                         //red lock led on front panel
@@ -114,6 +115,7 @@ class Scale {
         String getLockedOz();
         String getLb();
         String getOz();
+        String getPrintButtonStatus();
         static void print_pb_isr();
         void clear_buffer();
         void zeroBtn();
@@ -123,6 +125,8 @@ class Scale {
         void unitsBtn();
         void printBtn();
         void checkPref();
+
+     static bool isPrintPressed;
 };
 
 #endif
