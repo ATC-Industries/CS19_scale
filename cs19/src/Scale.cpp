@@ -460,7 +460,10 @@ String Scale::getLockStatus() {
  * @return String 
  */
 String Scale::getLastLocked() {
-  return lastLocked.substring(0,20);
+  if(units == LB || units == KG) {
+    return String(lastLocked.toFloat());
+  }
+  return String(String(lastLocked.toInt()) + "lb " + String(getLockedOz().toFloat()) + "oz");
   //return lastLocked;
 
 }
