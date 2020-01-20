@@ -453,7 +453,9 @@ String Scale::getLockStatus() {
  * @return String 
  */
 String Scale::getLastLocked() {
-return lastLocked;
+  return lastLocked.substring(0,20);
+  //return lastLocked;
+
 }
 
 String Scale::getLockOdo() {

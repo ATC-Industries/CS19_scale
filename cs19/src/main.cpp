@@ -191,8 +191,8 @@ void setup() {
 
   WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, password.c_str());
-  Serial.println("Wait 100 ms for AP_START...");
-  delay(100);
+  Serial.println("Wait 500 ms for AP_START...");
+  delay(500);
   
   Serial.println("Set softAPConfig");
 
