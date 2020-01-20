@@ -220,7 +220,7 @@ void setup() {
   });
   server.on("/isprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getPrintButtonStatus().c_str());
-    scale.isPrintPressed = false;
+    scale.changePrintStatus(false);
     // Serial.println(scale.getWeight());
   });
 

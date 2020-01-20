@@ -48,6 +48,7 @@ class Scale {
         Status status = VALID;
         char outLb[2];
         char outOz[4];
+        static bool isPrintPressed;
 
         Preferences preferences;
         unsigned int lockedCounter; // = preferences.getUInt("lockedCounter", 0);
@@ -125,8 +126,9 @@ class Scale {
         void unitsBtn();
         void printBtn();
         void checkPref();
+        static void changePrintStatus(bool status);
 
-     static bool isPrintPressed;
+        
 };
 
 #endif
