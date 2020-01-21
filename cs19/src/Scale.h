@@ -16,6 +16,8 @@
 
 class Scale {
     private:
+        bool printModeAuto = true;
+
         char radio_rx_array[31];        // array being recieved on xbee radio
         bool radio_rx_ready = false;    // whether the rec radio string is complete
         int radio_rx_pointer;           // pointer for radio rx buffer
@@ -49,6 +51,7 @@ class Scale {
         char outLb[2];
         char outOz[4];
         static bool isPrintPressed;
+        static bool isNewLock;
 
         Preferences preferences;
         unsigned int lockedCounter; // = preferences.getUInt("lockedCounter", 0);

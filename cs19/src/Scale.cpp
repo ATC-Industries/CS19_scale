@@ -11,6 +11,7 @@
 #include "Scale.h"
 
 bool Scale::isPrintPressed = false; 
+bool Scale::isNewLock = false;
 
 /**
  * @brief Construct a new Scale:: Scale object
@@ -337,6 +338,7 @@ void Scale::checkPref(){
     // if it did and the scale is locked increment locked counter by 1
     if (isLocked == true) {
       lockedCounter++;
+      isNewLock = true;
       Serial.println("Total number of Locks: " + String(lockedCounter));
       preferences.putUInt("lockedCounter", lockedCounter);
     }
@@ -527,16 +529,26 @@ void Scale::ledRGBStatus(bool red, bool green, bool blue) {
 }
 
 String Scale::getPrintButtonStatus() {
-  if (isPrintPressed) {
-    if(isLocked) {
-      return "1";
+  if(printModeAuto) {
+    if (isNewLock) {
+      if(isLocked) {
+        return "1";
+      }
     }
+    return "0";
+  } else {
+    if (isPrintPressed) {
+      if(isLocked) {
+        return "1";
+      }
+    }
+    return "0";
   }
-  return "0";
 }
 
 void Scale::changePrintStatus(bool status) {
   isPrintPressed = status;
+  isNewLock = status;
 }
 
 void Scale::zeroBtn(){
