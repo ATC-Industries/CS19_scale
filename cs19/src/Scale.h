@@ -57,7 +57,7 @@ class Scale {
         unsigned int lockedCounter; // = preferences.getUInt("lockedCounter", 0);
         unsigned int lastUnits; // = preferences.getUInt("lastUnits", static_cast<int>(units));
         bool lastLockedStatus = isLocked;
-        Units oldUnits = units;
+        Units oldUnits = LB;
 
 
         /**

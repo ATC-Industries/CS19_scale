@@ -77,7 +77,7 @@ void Scale::begin(){
   lockedCounter = preferences.getUInt("lockedCounter", 0);
   Serial.println("Total number of Locks: " + String(lockedCounter));
   units = NOTUSED;
-  lastUnits = preferences.getUInt("lastUnits", static_cast<int>(units));
+  lastUnits = preferences.getUInt("lastUnits", 0);
   preferences.end();
   // Make sure LEDs are off first thing
   ledRGBStatus(0,0,0);
