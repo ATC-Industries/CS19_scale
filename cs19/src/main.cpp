@@ -13,6 +13,16 @@
 
 #define EEPROM_SIZE 64         // define the number of bytes you want to access in flash memory
 
+//  Firmware Updates
+//  1001 - Initial Design
+//  1002 -
+//  1003 - 
+//  1004 - Add all styles locally via data upload.
+//  1005 - Add legacy remote checker, blink LED red for no Legacy, RGB for Xbee found
+//  1006 - SHIP - Bobo Albright
+const int FW_VERSION = 1006;
+
+
 // Set wifi login and password
 const char* ssid     = "ProTournamentScales";
 String password = "987654321";
@@ -38,8 +48,9 @@ IPAddress subnet(255, 255, 255, 0);
 //  1004 - Add all styles locally via data upload.
 //  1005 - Add legacy remote checker, blink LED red for no Legacy, RGB for Xbee found
 //  1006 - SHIP - Bobo Albright
+const int FW_VERSION = 1006;
 
-const int FW_VERSION = 1005;
+
 int remoteMode = 0;
 String maxMode = "4";
 
