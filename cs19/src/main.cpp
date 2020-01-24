@@ -37,6 +37,8 @@ IPAddress subnet(255, 255, 255, 0);
 //  1003 - 
 //  1004 - Add all styles locally via data upload.
 //  1005 - Add legacy remote checker, blink LED red for no Legacy, RGB for Xbee found
+//  1006 - SHIP - Bobo Albright
+
 const int FW_VERSION = 1005;
 int remoteMode = 0;
 String maxMode = "4";
