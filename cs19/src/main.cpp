@@ -231,11 +231,29 @@ void setup() {
     request->send_P(200, "text/plain", scale.getWeight().c_str());
     Serial.println(scale.getWeight());
   });
-  server.on("/isprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
-    scale.changePrintStatus(false); 
-    // Serial.println(scale.getWeight());
+  // server.on("/isprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
+  //   scale.changePrintStatus(false); 
+  //   // Serial.println(scale.getWeight());
+  // });
+
+  server.on(
+    "/isprintpressed",
+    HTTP_POST,
+    [](AsyncWebServerRequest * request){},
+    NULL,
+    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+      char mode[len];
+      for (size_t i = 0; i < len; i++) {
+        Serial.write(data[i]);
+        mode[i] = data[i];
+      }
+  
+      //Serial.println();
+     request->send(200, "text/plain", scale.getPrintButtonStatus(mode).c_str());
+      scale.changePrintStatus(false); 
   });
+
 
 
   server.on("/getlegacyweight", HTTP_GET, [](AsyncWebServerRequest *request){

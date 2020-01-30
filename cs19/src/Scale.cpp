@@ -528,8 +528,8 @@ void Scale::ledRGBStatus(bool red, bool green, bool blue) {
 
 }
 
-String Scale::getPrintButtonStatus() {
-  if(printModeAuto) {
+String Scale::getPrintButtonStatus(char *mode) {
+  if(mode) {
     if (isNewLock) {
       if(isLocked) {
         return "1";
