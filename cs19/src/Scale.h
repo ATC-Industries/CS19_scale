@@ -119,7 +119,7 @@ class Scale {
         String getLockedOz();
         String getLb();
         String getOz();
-        String getPrintButtonStatus(char *mode);
+        String getPrintButtonStatus(void);
         static void print_pb_isr();
         void clear_buffer();
         void zeroBtn();
@@ -130,6 +130,8 @@ class Scale {
         void printBtn();
         void checkPref();
         static void changePrintStatus(bool status);
+        bool isAuto;
+    
 
         
 };

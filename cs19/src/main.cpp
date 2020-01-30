@@ -20,7 +20,8 @@
 //  1004 - Add all styles locally via data upload.
 //  1005 - Add legacy remote checker, blink LED red for no Legacy, RGB for Xbee found
 //  1006 - SHIP - Bobo Albright 
-const int FW_VERSION = 1006;
+//  1007 - Add auto print or manual print option, set on printer
+const int FW_VERSION = 1007;
 
 
 // Set wifi login and password
@@ -39,17 +40,6 @@ IPAddress local_IP(192, 168, 1, 184);
 IPAddress gateway(0, 0, 0, 0);
 
 IPAddress subnet(255, 255, 255, 0);
-
-
-//  Firmware Updates
-//  1001 - Initial Design
-//  1002 -
-//  1003 - 
-//  1004 - Add all styles locally via data upload.
-//  1005 - Add legacy remote checker, blink LED red for no Legacy, RGB for Xbee found
-//  1006 - SHIP - Bobo Albright
-const int FW_VERSION = 1006;
-
 
 int remoteMode = 0;
 String maxMode = "4";
@@ -231,28 +221,35 @@ void setup() {
     request->send_P(200, "text/plain", scale.getWeight().c_str());
     Serial.println(scale.getWeight());
   });
-  // server.on("/isprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
-  //   request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
-  //   scale.changePrintStatus(false); 
-  //   // Serial.println(scale.getWeight());
-  // });
-
-  server.on(
-    "/isprintpressed",
-    HTTP_POST,
-    [](AsyncWebServerRequest * request){},
-    NULL,
-    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
-      char mode[len];
-      for (size_t i = 0; i < len; i++) {
-        Serial.write(data[i]);
-        mode[i] = data[i];
-      }
-  
-      //Serial.println();
-     request->send(200, "text/plain", scale.getPrintButtonStatus(mode).c_str());
-      scale.changePrintStatus(false); 
+  server.on("/islockedandprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
+    scale.isAuto = false;
+    request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
+    scale.changePrintStatus(false); 
+    // Serial.println(scale.getWeight());
   });
+  server.on("/islockedandauto", HTTP_GET, [](AsyncWebServerRequest *request){
+    scale.isAuto = true;
+    request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
+    scale.changePrintStatus(false); 
+    // Serial.println(scale.getWeight());
+  });
+
+  // server.on(
+  //   "/isprintpressed",
+  //   HTTP_POST,
+  //   [](AsyncWebServerRequest * request){},
+  //   NULL,
+  //   [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+  //     char mode[len];
+  //     for (size_t i = 0; i < len; i++) {
+  //       //Serial.write(data[i]);
+  //       mode[i] = data[i];
+  //     }
+  
+  //     //Serial.println();
+  //    request->send(200, "text/plain", scale.getPrintButtonStatus(mode).c_str());
+  //     scale.changePrintStatus(false); 
+  // });
 
 
 
