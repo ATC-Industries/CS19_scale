@@ -59,6 +59,8 @@ class Scale {
         bool lastLockedStatus = isLocked;
         Units oldUnits = LB;
         static bool isPrintButtonPressed;
+        static portMUX_TYPE mux;
+
 
 
         /**
@@ -121,7 +123,7 @@ class Scale {
         String getLb();
         String getOz();
         String getPrintButtonStatus(void);
-        static void print_pb_isr();
+        static void IRAM_ATTR print_pb_isr();
         void clear_buffer();
         void zeroBtn();
         void tareBtn();

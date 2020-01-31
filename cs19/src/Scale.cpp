@@ -13,6 +13,8 @@
 bool Scale::isPrintPressed = false; 
 bool Scale::isNewLock = false;
 bool Scale::isPrintButtonPressed = false;
+portMUX_TYPE Scale::mux = portMUX_INITIALIZER_UNLOCKED;
+
 
 /**
  * @brief Construct a new Scale:: Scale object
@@ -72,7 +74,6 @@ Scale::~Scale() {}
  * 
  */
 void Scale::begin(){
-  
   isBootUp = true;
   preferences.begin("my-app", false);
   lockedCounter = preferences.getUInt("lockedCounter", 0);
@@ -100,47 +101,53 @@ void Scale::begin(){
     if (response.equals("OK")) { 
       Serial.println("xBee Radio Found");
       //  Rainbow the leds at startup
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < 4; i++) {
         ledRGBStatus(1,0,0);
-        delay(500);
+        delay(300);
         ledRGBStatus(0,1,0);
-        delay(500);
+        delay(300);
         ledRGBStatus(0,0,1);
-        delay(500);
+        delay(300);
       }
       ledRGBStatus(0,0,0);
     } else {
       Serial.println("No Legacy Board Found");
       // Blink LOCKED LED at startup
-      int x = 6; 
+      int x = 8; 
       while (x != 0){
         ledRGBStatus(1,0,0);
-        delay(250);
+        delay(150);
         ledRGBStatus(0,0,0);
-        delay(250);
+        delay(150);
         x = x-1; 
       }
     } 
   } else {
       Serial.println("No Legacy Board Found");
       // Blink LOCKED LED at startup
-      int x = 6; 
+      int x = 8; 
       while (x != 0){
         ledRGBStatus(1,0,0);
-        delay(250);
+        delay(150);
         ledRGBStatus(0,0,0);
-        delay(250);
+        delay(150);
         x = x-1; 
       }
-    }    
+    }
+    if (lastUnits == 0) {
+      unitsBtn();
+    }
 }
 
 /**
  * @brief Interupt Service Routine to for Print button
  * 
  */
-void Scale::print_pb_isr(){                                          //This is an  isr that is called when CS-19 print button is pressed
+void IRAM_ATTR Scale::print_pb_isr(){                                          //This is an  isr that is called when CS-19 print button is pressed
+  portENTER_CRITICAL_ISR(&mux);
   isPrintButtonPressed = true;
+  portEXIT_CRITICAL_ISR(&mux);
+ 
 }
 
 /**
@@ -161,7 +168,10 @@ void Scale::readScale(){
       changePrintStatus(true);
     }
     last_interrupt_time = interrupt_time;
+    portENTER_CRITICAL(&mux);
     isPrintButtonPressed = false;
+    portEXIT_CRITICAL(&mux);
+  
   }
   static int rx2_pointer;                       //pointer for rs 232 port 2 rx string  
   bool process_buffer_flag = 0;              //flag to signal to process rx2 string 
@@ -329,8 +339,10 @@ void Scale::checkPref(){
   // Match startup units to last used units
   if (isBootUp) {
     Serial.println("units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits));
+    //delay(250);
     if (static_cast<int>(units) != lastUnits) {
       unitsBtn();
+      //delay(250);
       } else {
       isBootUp = false;
       Serial.println("isBootUp False");
@@ -573,7 +585,10 @@ void Scale::netMode(){
 }
 
 void Scale::unitsBtn(){
+   delay(50);
    Serial2.write('C');
+   delay(50);
+   Serial.println("Units Button Command Sent");
 }
 
 void Scale::printBtn(){
