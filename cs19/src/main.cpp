@@ -3,7 +3,9 @@
 #include "ESPAsyncWebServer.h"
 #include <AsyncTCP.h>
 #include "SPIFFS.h"
-#include <EEPROM.h>           // include library to read and write from flash memory
+//#include <EEPROM.h>           // include library to read and write from flash memory
+// #include <Preferences.h>
+// Preferences preferences
 
 
 #include "Scale.h"
@@ -11,7 +13,7 @@
 #include "Updater.h"
 
 
-#define EEPROM_SIZE 64         // define the number of bytes you want to access in flash memory
+//#define EEPROM_SIZE 64         // define the number of bytes you want to access in flash memory
 
 //  Firmware Updates
 //  1001 - Initial Design
@@ -184,12 +186,15 @@ void setup() {
 
   // Configures static IP address
   Serial.println("Configuring access point...");
-  EEPROM.begin(EEPROM_SIZE);
   
-  if (EEPROM.readByte(passAddress) == 255) {
-    EEPROM.writeString(passAddress, password);
-  }
-  password = EEPROM.readString(passAddress);
+  // preferences.begin("my-app", false);
+
+ // EEPROM.begin(EEPROM_SIZE);
+  // preferences.putString("passAddress", password);
+  // if (EEPROM.readByte(passAddress) == 255) {
+  //   EEPROM.writeString(passAddress, password);
+  // }
+  // password = EEPROM.readString(passAddress);
  
 
   WiFi.mode(WIFI_AP);

@@ -12,6 +12,7 @@
 
 bool Scale::isPrintPressed = false; 
 bool Scale::isNewLock = false;
+bool Scale::isPrintButtonPressed = false;
 
 /**
  * @brief Construct a new Scale:: Scale object
