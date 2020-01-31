@@ -58,6 +58,7 @@ class Scale {
         unsigned int lastUnits; // = preferences.getUInt("lastUnits", static_cast<int>(units));
         bool lastLockedStatus = isLocked;
         Units oldUnits = LB;
+        bool isPrintButtonPressed = false;
 
 
         /**

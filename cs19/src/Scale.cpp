@@ -139,6 +139,15 @@ void Scale::begin(){
  * 
  */
 void Scale::print_pb_isr(){                                          //This is an  isr that is called when CS-19 print button is pressed
+  isPrintButtonPressed = true;
+}
+
+/**
+ * @brief read scale RS232 signal
+ * 
+ */
+void Scale::readScale(){
+  if(isPrintButtonPressed) {
   //insert code here to execute when cs19 print button is pressed
   // NOTE this routine will be called for every character coming in off of serial port.
   // need code eliminate duplicates
@@ -151,13 +160,8 @@ void Scale::print_pb_isr(){                                          //This is a
       changePrintStatus(true);
     }
     last_interrupt_time = interrupt_time;
-}
-
-/**
- * @brief read scale RS232 signal
- * 
- */
-void Scale::readScale(){
+    isPrintButtonPressed = false;
+  }
   static int rx2_pointer;                       //pointer for rs 232 port 2 rx string  
   bool process_buffer_flag = 0;              //flag to signal to process rx2 string 
   bool lock_flag = 0;                        //flag for lock condition
