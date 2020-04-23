@@ -23,7 +23,9 @@
 //  1005 - Add legacy remote checker, blink LED red for no Legacy, RGB for Xbee found
 //  1006 - SHIP - Bobo Albright 
 //  1007 - Add auto print or manual print option, set on printer
-const int FW_VERSION = 1007;
+//  1008 - Change RX TX to Xbee to 19/21
+//  1009 - Added units button startup timeout.
+const int FW_VERSION = 1009;
 
 
 // Set wifi login and password

@@ -86,7 +86,7 @@ void Scale::begin(){
   pinMode(scale_print_button, INPUT);
   attachInterrupt(digitalPinToInterrupt(scale_print_button),this->Scale::print_pb_isr,CHANGE);     //this calls 'print_pb()' when user presses print button on cs-19
   // RS232 comm with xBee Radio
-  Serial1.begin(9600, SERIAL_8N1, 18, 19);
+  Serial1.begin(9600, SERIAL_8N1, 19, 21);
   // RS232 input from CS19
   Serial2.begin(9600, SERIAL_8N1,RXD2,TXD2);
   
@@ -340,7 +340,7 @@ void Scale::checkPref(){
   if (isBootUp) {
     Serial.println("units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits));
     //delay(250);
-    if (static_cast<int>(units) != lastUnits) {
+    if (static_cast<int>(units) != lastUnits && unitsBtnCounter < 25) {
       unitsBtn();
       //delay(250);
       } else {
@@ -589,6 +589,7 @@ void Scale::unitsBtn(){
    Serial2.write('C');
    delay(50);
    Serial.println("Units Button Command Sent");
+   unitsBtnCounter++;
 }
 
 void Scale::printBtn(){

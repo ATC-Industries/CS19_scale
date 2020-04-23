@@ -38,6 +38,7 @@ class Scale {
         enum Units { LB, LBOZ, KG, NOTUSED };    // Units datatype
         enum Taremode { NET, GROSS };
         enum Status { VALID, MOTION, OVERUNDER };
+        int unitsBtnCounter = 0;
 
         // Scale Statuses
         bool isLocked = false;
