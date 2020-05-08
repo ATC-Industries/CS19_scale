@@ -3,19 +3,11 @@
 #include "ESPAsyncWebServer.h"
 #include <AsyncTCP.h>
 #include "SPIFFS.h"
-//#include <EEPROM.h>           // include library to read and write from flash memory
-// #include <Preferences.h>
-// Preferences preferences
-
-
 #include "Scale.h"
 #include "Index.h"
 #include "Updater.h"
 
-
-//#define EEPROM_SIZE 64         // define the number of bytes you want to access in flash memory
-
-//  Firmware Updates
+//  ---- FIRMWARE UPDATES ====  //
 //  1001 - Initial Design
 //  1002 -
 //  1003 - 
@@ -34,24 +26,24 @@ String password = "987654321";
 const int passAddress = 0;
 unsigned long timer = millis();
 
+// Port 80 where the server will be listening
 AsyncWebServer server(80);
+// A websocket input called /ws
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 
 // Set your Static IP address
 IPAddress local_IP(192, 168, 1, 184);
-// Set your Gateway IP address
+// Set your Gateway IP address  0.0.0.0 means no router, this will allow mobile phones to still connect to internet using data.
 IPAddress gateway(0, 0, 0, 0);
 
 IPAddress subnet(255, 255, 255, 0);
 
-int remoteMode = 0;
+// Number of modes available.  requesteted by remote display to calculate mode switching
 String maxMode = "4";
 
 // A Scale object instance on Pin 25 and 27
 Scale scale(25,27);
-// Instantiate Updater
-//Updater updater;
 
 // Get the current Firmware Version
 String getVersion() {
@@ -60,11 +52,9 @@ String getVersion() {
 
 String processStringForRemote(String weight, String oz) {
   String s = "";
-  //Serial.println(s);
-  //Serial.println(scale.getUnits());
-  if (scale.getUnits() == "") {     // if empty string returned in lbs oz mode
-    int tempLb = weight.toInt();         // get lbs from scale and convert to int
-    float tempOz = oz.toFloat();     // convert oz to a float
+  if (scale.getUnits() == "") {                 // if empty string returned in lbs oz mode
+    int tempLb = weight.toInt();                // get lbs from scale and convert to int
+    float tempOz = oz.toFloat();                // convert oz to a float
     if (tempLb <= 0 && tempOz < 0.1) {          // check if less than 0lb 0.1oz
       s = " 0. 0";                              // if it is print 0. 0
     } else {                                    // if not then print real weight    
@@ -79,7 +69,7 @@ String processStringForRemote(String weight, String oz) {
       } else {                                  // if it's greater than 10
         s += ".";                               // no space needed
       }
-      s += tempOz;                              // no append the ounces  Remote display should cut off decimal if needed.
+      s += tempOz;                              // now append the ounces  Remote display should cut off decimal if needed.
     }
   }
   else { 
@@ -102,8 +92,6 @@ String processStringForRemote(String weight, String oz) {
       }
     }
   }                                             // otherwise business as usual
-
- // Serial.println(s);
   return s;
 }
 
@@ -171,7 +159,7 @@ void setup() {
   // TODO uint8_t cardType;
   Serial.begin(115200);                      // start serial port 0 (debug monitor and programming port)
   scale.begin();
-  Serial.println("Searching for Update...");
+  //Serial.println("Searching for Update...");
   // //first init and check SD card
   //  if (!SD.begin()) {
   //     updater.rebootEspWithReason("Card Mount Failed");
@@ -188,24 +176,13 @@ void setup() {
 
   // Configures static IP address
   Serial.println("Configuring access point...");
-  
-  // preferences.begin("my-app", false);
-
- // EEPROM.begin(EEPROM_SIZE);
-  // preferences.putString("passAddress", password);
-  // if (EEPROM.readByte(passAddress) == 255) {
-  //   EEPROM.writeString(passAddress, password);
-  // }
-  // password = EEPROM.readString(passAddress);
- 
-
+  // Setup wifi access point
   WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, password.c_str());
   Serial.println("Wait 500 ms for AP_START...");
   delay(500);
   
   Serial.println("Set softAPConfig");
-
   WiFi.softAPConfig(local_IP, gateway, subnet);
   
   IPAddress myIP = WiFi.softAPIP();
@@ -240,24 +217,6 @@ void setup() {
     scale.changePrintStatus(false); 
     // Serial.println(scale.getWeight());
   });
-
-  // server.on(
-  //   "/isprintpressed",
-  //   HTTP_POST,
-  //   [](AsyncWebServerRequest * request){},
-  //   NULL,
-  //   [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
-  //     char mode[len];
-  //     for (size_t i = 0; i < len; i++) {
-  //       //Serial.write(data[i]);
-  //       mode[i] = data[i];
-  //     }
-  
-  //     //Serial.println();
-  //    request->send(200, "text/plain", scale.getPrintButtonStatus(mode).c_str());
-  //     scale.changePrintStatus(false); 
-  // });
-
 
 
   server.on("/getlegacyweight", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -370,16 +329,10 @@ server.onNotFound([](AsyncWebServerRequest *request){
 });
 
 
-  // Connect to Wi-Fi
-  server.begin();               //start server
+server.begin();               //start server
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  // if (millis() - timer > 300) {
-  //   scale.readScale();
-  //   timer = millis();
-    
-  // }
   scale.readScale();
 }

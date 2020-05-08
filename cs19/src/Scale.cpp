@@ -340,7 +340,7 @@ void Scale::checkPref(){
   if (isBootUp) {
     Serial.println("units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits));
     //delay(250);
-    if (static_cast<int>(units) != lastUnits && unitsBtnCounter < 25) {
+    if (static_cast<int>(units) != lastUnits) {
       unitsBtn();
       //delay(250);
       } else {
