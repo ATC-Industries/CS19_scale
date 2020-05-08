@@ -17,7 +17,8 @@
 //  1007 - Add auto print or manual print option, set on printer
 //  1008 - Change RX TX to Xbee to 19/21
 //  1009 - Added units button startup timeout.
-const int FW_VERSION = 1009;
+//  1010 - fix weight off by one error
+const int FW_VERSION = 1010;
 
 
 // Set wifi login and password
@@ -47,7 +48,8 @@ Scale scale(25,27);
 
 // Get the current Firmware Version
 String getVersion() {
-  return String(FW_VERSION);
+  String versionNum = String(FW_VERSION / 1000) + "." + String(FW_VERSION % 1000 / 100) + "." + String(FW_VERSION % 100);
+  return versionNum;
 }
 
 String processStringForRemote(String weight, String oz) {
@@ -178,7 +180,7 @@ void setup() {
   Serial.println("Configuring access point...");
   // Setup wifi access point
   WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, password.c_str());
+  WiFi.softAP(ssid, password.c_str(),1,0,10);
   Serial.println("Wait 500 ms for AP_START...");
   delay(500);
   
@@ -245,6 +247,7 @@ void setup() {
       //Serial.println();
  
       request->send(200, "text/plain", remoteDisplay(mode).c_str());
+      Serial.println(remoteDisplay(mode).c_str());
   });
 
 server.on(

@@ -21,7 +21,7 @@ portMUX_TYPE Scale::mux = portMUX_INITIALIZER_UNLOCKED;
  * 
  */
 Scale::Scale() {
-isPrintPressed = false;
+  isPrintPressed = false;
 }
 
 /**
@@ -269,13 +269,19 @@ void Scale::readScale(){
     legRemWeigh = legacyRemWeight;
     // output weight string
     if (units == LB || units == KG) {
-      for (int i=0;i<30; i++){weight[i]=' ';}
+      // Clear weight Char array
+      memset(weight, 0, sizeof(weight));
       
       strncpy(weight,rx2_buffer+1,8);
+      //Serial.println(weight);
+
     } else if (units == LBOZ) {
-      for (int i=0;i<30; i++){weight[i]=' ';}
-      for (int i=0;i<2; i++){outLb[i]=' ';}
-      for (int i=0;i<4; i++){outOz[i]=' ';}
+      //for (int i=0;i<30; i++){weight[i]=' ';}
+      memset(weight, 0, sizeof(weight));
+      memset(outLb, 0, sizeof(outLb));
+      memset(outOz, 0, sizeof(outOz));
+     // for (int i=0;i<2; i++){outLb[i]=' ';}
+      //for (int i=0;i<4; i++){outOz[i]=' ';}
 
       char outLbOz[12];
       strncpy(outLb,rx2_buffer+3,2);
