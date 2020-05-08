@@ -17,7 +17,7 @@
 //  1007 - Add auto print or manual print option, set on printer
 //  1008 - Change RX TX to Xbee to 19/21
 //  1009 - Added units button startup timeout.
-//  1010 - fix weight off by one error
+//  1010 - fix weight off by one error / increased max connections from 4 to 10
 const int FW_VERSION = 1010;
 
 
