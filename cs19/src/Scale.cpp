@@ -268,14 +268,23 @@ void Scale::readScale(){
     }
     legRemWeigh = legacyRemWeight;
     // output weight string
-    if (units == LB || units == KG) {
+    if (units == LB) {
       // Clear weight Char array
       memset(weight, 0, sizeof(weight));
       
       strncpy(weight,rx2_buffer+1,8);
       //Serial.println(weight);
 
-    } else if (units == LBOZ) {
+    } else if (units == KG) {
+      // Clear weight Char array
+      memset(weight, 0, sizeof(weight));
+      
+      strncpy(weight,rx2_buffer+1,8);
+      //Serial.println(weight);
+
+    } 
+  
+    else if (units == LBOZ) {
       //for (int i=0;i<30; i++){weight[i]=' ';}
       memset(weight, 0, sizeof(weight));
       memset(outLb, 0, sizeof(outLb));
@@ -315,6 +324,7 @@ void Scale::readScale(){
       for (int i=0;i<30; i++){lastLocked[i]=' ';}
       lastLocked = weight;
       lockedOz = outOz;
+
     }
 
     // Serial1.println(rx2_buffer);
@@ -486,7 +496,10 @@ String Scale::getLockStatus() {
  */
 String Scale::getLastLocked() {
   if(units == LB || units == KG) {
-    return String(lastLocked.toFloat());
+    // Serial.println("getLastLocked: ");
+    // Serial.println(lastLocked);
+    // return String(lastLocked.toFloat());
+    return String(lastLocked);
   }
   return String(String(lastLocked.toInt()) + "lb " + String(getLockedOz().toFloat(), 1) + "oz");
   //return lastLocked;

@@ -31,8 +31,8 @@ class Scale {
         int RXD2 = 25;                             //define pins to use with uart 2
         int TXD2 = 27;
         int lockLedRed = 13;                         //red lock led on front panel
-        int lockLedGreen = 14;                      // green lock len on front panel
-        int lockLedBlue = 12;                      // green lock len on front panel
+        int lockLedGreen = 12;                      // green lock len on front panel
+        int lockLedBlue = 14;                      // green lock len on front panel
         int scale_print_button = 32;               //this pin generates an interrupt when activity is deteced on serial port controlled by console print button
         char rx2_buffer[25];                       //rs 232 port 2 recieve string from scale
         enum Units { LB, LBOZ, KG, NOTUSED };    // Units datatype

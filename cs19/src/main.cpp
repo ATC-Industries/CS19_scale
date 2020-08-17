@@ -18,7 +18,8 @@
 //  1008 - Change RX TX to Xbee to 19/21
 //  1009 - Added units button startup timeout.
 //  1010 - fix weight off by one error / increased max connections from 4 to 10
-const int FW_VERSION = 1010;
+//  1011 - Outputs 0.000 to remote display instead of 0.00 when in Kg mode.
+const int FW_VERSION = 1011;
 
 
 // Set wifi login and password
@@ -74,8 +75,29 @@ String processStringForRemote(String weight, String oz) {
       s += tempOz;                              // now append the ounces  Remote display should cut off decimal if needed.
     }
   }
+  else if (scale.getUnits() == "kg") {
+      s = weight;                                // must be in Kg mode 
+    int decimalCounter = 0;
+    s.replace(" ", "");                         // delete all the spaces
+    // loop through weight to see if there are no decimals
+    for (int i = 0; i < s.length(); i++) {
+      if (s[i] == '.') {
+        decimalCounter++;
+      } 
+    }
+    if (decimalCounter > 0) {
+      if (s.toFloat() < 0.050) {                    // check if value is less than .01
+        s = "0.000";                              //  if it is just display zeros
+      }
+    } else {
+      if (s.toInt() < 5) {
+        s = "   0";
+      }
+    }
+    //s = String(s.toFloat());
+  }
   else { 
-    s = weight;                                      // must be in Kg or Lb mode 
+    s = weight;                                      // must be in Lb mode 
     int decimalCounter = 0;
     s.replace(" ", "");                         // delete all the spaces
     // loop through weight to see if there are no decimals
@@ -157,9 +179,16 @@ String processor(const String& var) {
 }
 
 void setup() {
-  
+
+
+
+
+
   // TODO uint8_t cardType;
   Serial.begin(115200);                      // start serial port 0 (debug monitor and programming port)
+  Serial.println("Booting Up...");
+  Serial.print("Software Version: ");
+  Serial.println(FW_VERSION);
   scale.begin();
   //Serial.println("Searching for Update...");
   // //first init and check SD card
