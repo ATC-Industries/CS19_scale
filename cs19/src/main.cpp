@@ -19,7 +19,8 @@
 //  1009 - Added units button startup timeout.
 //  1010 - fix weight off by one error / increased max connections from 4 to 10
 //  1011 - Outputs 0.000 to remote display instead of 0.00 when in Kg mode.
-const int FW_VERSION = 1011;
+//  1012 - Add startup check for stylesheet and flash purple led
+const int FW_VERSION = 1012;
 
 
 // Set wifi login and password
@@ -226,6 +227,9 @@ void setup() {
         Serial.println("An Error has occurred while mounting SPIFFS");
         return;
   }
+
+
+
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){

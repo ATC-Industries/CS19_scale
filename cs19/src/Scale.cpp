@@ -9,6 +9,7 @@
  * 
  */
 #include "Scale.h"
+#include "SPIFFS.h"
 
 bool Scale::isPrintPressed = false; 
 bool Scale::isNewLock = false;
@@ -134,6 +135,28 @@ void Scale::begin(){
         x = x-1; 
       }
     }
+
+    // check that files were loaded to spiffs. 
+    if (!SPIFFS.begin(true)) {
+       Serial.println("An Error has occurred while mounting SPIFFS");
+    }
+
+    if(SPIFFS.exists("/style.css")) {
+      int x = 7; 
+      while (x != 0){
+        ledRGBStatus(1,1,0);
+        delay(25);
+        ledRGBStatus(0,0,0);
+        delay(50);
+        x = x - 1;
+      }
+      Serial.println("Stylesheet found");
+
+    } else {
+      ledRGBStatus(0,0,0);
+      Serial.println("No Stylesheet found");
+    }
+
     if (lastUnits == 0) {
       unitsBtn();
     }
@@ -220,6 +243,7 @@ void Scale::readScale(){
       status = OVERUNDER;
       break;
     case 0x0D:
+ //     rx2_buffer[rx2_pointer++] = 0x0A;                   // Add a carriage return to end of string to allow compatibility with FD9 Flip Digit signs.
       process_buffer_flag = 1;                            //set flag so code will process buffer
 
       break;
@@ -260,7 +284,8 @@ void Scale::readScale(){
     char legacyRemWeight[30] = "\x02 ";
     //strncpy(legacyRemWeight,"\x02 ",3);
     
-    strncpy(legacyRemWeight+2,rx2_buffer+1,13);
+    strncpy(legacyRemWeight+2,rx2_buffer+1,14);
+    //legacyRemWeight[13] = 0x0A;
     //Serial.println(legacyRemWeight);
     if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O') {
     } else { 
