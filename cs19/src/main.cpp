@@ -20,7 +20,8 @@
 //  1010 - fix weight off by one error / increased max connections from 4 to 10
 //  1011 - Outputs 0.000 to remote display instead of 0.00 when in Kg mode.
 //  1012 - Add startup check for stylesheet and flash purple led
-const int FW_VERSION = 1012;
+//  1013 - Fix Units button startup problems
+const int FW_VERSION = 1013;
 
 
 // Set wifi login and password
@@ -254,17 +255,19 @@ void setup() {
   });
 
 
+  // xBee Legacy Radio makes a call to get old style legacy weight
   server.on("/getlegacyweight", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getLegacyWeight().c_str());
     //Serial.println(scale.getLegacyWeight());
   });
 
-  
+  // remote display makes a call to discover the max different display modes available
   server.on("/getmaxmode", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", maxMode.c_str());
     Serial.println("maxMode");
   });
 
+  // Remote display server request
   server.on(
     "/remote",
     HTTP_POST,

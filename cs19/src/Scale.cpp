@@ -156,10 +156,22 @@ void Scale::begin(){
       ledRGBStatus(0,0,0);
       Serial.println("No Stylesheet found");
     }
-
-    if (lastUnits == 0) {
-      unitsBtn();
+  readScale();
+  int timeoutCounter = 0;
+  while(units == NOTUSED){
+    Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Loading... ");
+    readScale();
+  }
+  while(units != lastUnits ) {
+    unitsBtn();
+    Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Should be: " + String(lastUnits) + ". Pressing Units... ");
+    timeoutCounter++;
+    //readScale();
+    if (timeoutCounter > 0) {
+      break;
     }
+  }
+  isBootUp = false;
 }
 
 /**
@@ -377,17 +389,23 @@ void Scale::checkPref(){
     }
   }
 
-  // Match startup units to last used units
+  //Match startup units to last used units
+//  int timeoutCounter = 0;
   if (isBootUp) {
-    Serial.println("units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits));
-    //delay(250);
-    if (static_cast<int>(units) != lastUnits) {
-      unitsBtn();
-      //delay(250);
-      } else {
-      isBootUp = false;
-      Serial.println("isBootUp False");
-    }
+    //Serial.println("units: " + String(static_cast<int>(units)) + " lastUnits: " + String(lastUnits));
+    // delay(250);
+    
+    // if (static_cast<int>(units) != lastUnits) {
+    //   unitsBtn();
+    //   //delay(250);
+    //   } else {
+    //   isBootUp = false;
+    //   Serial.println("isBootUp False");
+    // }
+    // timeoutCounter++;
+    // if (timeoutCounter >20) {
+    //   isBootUp = false;
+    // }
   }
 
   // Lock "odometer" counter
@@ -629,11 +647,13 @@ void Scale::netMode(){
 }
 
 void Scale::unitsBtn(){
-   delay(50);
+  // delay(50);
    Serial2.write('C');
-   delay(50);
-   Serial.println("Units Button Command Sent");
-   unitsBtnCounter++;
+   readScale();
+  // delay(50);
+  // Serial.println("Units Button Command Sent");
+
+  // unitsBtnCounter++;
 }
 
 void Scale::printBtn(){
