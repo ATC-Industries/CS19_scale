@@ -158,6 +158,7 @@ void Scale::begin(){
     }
   readScale();
   int timeoutCounter = 0;
+
   while(units == NOTUSED){
     Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Loading... ");
     readScale();
