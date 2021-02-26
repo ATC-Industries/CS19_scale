@@ -315,6 +315,12 @@ server.on(
     request->send(200, "text/plain", scale.getLastLocked().c_str());
     //Serial.println("last locked value Sent");
   });
+  server.on("/getLockedOdo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", scale.getLockOdo().c_str());
+    //Serial.println("last locked value Sent");
+  });
+
+
   // Route to load style.css file
 server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(SPIFFS, "/style.css", "text/css");

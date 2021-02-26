@@ -159,15 +159,15 @@ void Scale::begin(){
   readScale();
   int timeoutCounter = 0;
 
-  while(units == NOTUSED){
-    Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Loading... ");
-    readScale();
-  }
+  // while(units == NOTUSED){
+  //   Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Loading... ");
+  //   readScale();
+  // }
   while(units != lastUnits ) {
     unitsBtn();
     Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Should be: " + String(lastUnits) + ". Pressing Units... ");
     timeoutCounter++;
-    //readScale();
+    readScale();
     if (timeoutCounter > 0) {
       break;
     }
