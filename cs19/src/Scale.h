@@ -44,7 +44,12 @@ class Scale {
         bool isLocked = false;
         bool hasSignalFlag = false;
         char weight[30] = " ";                     //array to hold weight value
-        String lastLocked;            // last loocked value
+        String lastLocked;            // last locked value
+        String last1 = "---";
+        String last2 = "---";
+        String last3 = "---";
+        String last4 = "---";
+        String last5 = "---";
         String lockedOz;
         Units units; // = NOTUSED;
         Taremode tareMode = GROSS;
@@ -119,6 +124,12 @@ class Scale {
         String getStatus();
         String getLockStatus();
         String getLastLocked();
+        void updateLastLock(String weight);
+        String getLast1();
+        String getLast2();
+        String getLast3();
+        String getLast4();
+        String getLast5();
         String getLockOdo();
         String getLockedOz();
         String getLb();

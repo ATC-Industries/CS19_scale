@@ -21,7 +21,8 @@
 //  1011 - Outputs 0.000 to remote display instead of 0.00 when in Kg mode.
 //  1012 - Add startup check for stylesheet and flash purple led
 //  1013 - Fix Units button startup problems
-const int FW_VERSION = 1013;
+//  1014 - Add more last locked in table on iPhone
+const int FW_VERSION = 1014;
 
 
 // Set wifi login and password
@@ -177,6 +178,21 @@ String processor(const String& var) {
   else if (var == "LOCKODO") {
     return scale.getLockOdo();
   }
+  else if (var == "LAST1") {
+    return scale.getLast1();
+  }
+  else if (var == "LAST2") {
+    return scale.getLast2();
+  }
+  else if (var == "LAST3") {
+    return scale.getLast3();
+  }
+  else if (var == "LAST4") {
+    return scale.getLast4();
+  }
+  else if (var == "LAST5") {
+    return scale.getLast5();
+  }
   return String();
 }
 
@@ -313,6 +329,26 @@ server.on(
   });
   server.on("/getLastLocked", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLastLocked().c_str());
+    //Serial.println("last locked value Sent");
+  });
+  server.on("/getLast1", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", scale.getLast1().c_str());
+    //Serial.println("last locked value Sent");
+  });
+  server.on("/getLast2", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", scale.getLast2().c_str());
+    //Serial.println("last locked value Sent");
+  });
+  server.on("/getLast3", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", scale.getLast3().c_str());
+    //Serial.println("last locked value Sent");
+  });
+  server.on("/getLast4", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", scale.getLast4().c_str());
+    //Serial.println("last locked value Sent");
+  });
+  server.on("/getLast5", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "text/plain", scale.getLast5().c_str());
     //Serial.println("last locked value Sent");
   });
   server.on("/getLockedOdo", HTTP_GET, [](AsyncWebServerRequest *request){

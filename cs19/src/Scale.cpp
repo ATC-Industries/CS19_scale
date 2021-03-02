@@ -362,7 +362,6 @@ void Scale::readScale(){
       for (int i=0;i<30; i++){lastLocked[i]=' ';}
       lastLocked = weight;
       lockedOz = outOz;
-
     }
 
     // Serial1.println(rx2_buffer);
@@ -415,6 +414,7 @@ void Scale::checkPref(){
     // if it did and the scale is locked increment locked counter by 1
     if (isLocked == true) {
       lockedCounter++;
+      updateLastLock(weight);
       isNewLock = true;
       Serial.println("Total number of Locks: " + String(lockedCounter));
       preferences.putUInt("lockedCounter", lockedCounter);
@@ -548,6 +548,31 @@ String Scale::getLastLocked() {
   return String(String(lastLocked.toInt()) + "lb " + String(getLockedOz().toFloat(), 1) + "oz");
   //return lastLocked;
 
+}
+
+void Scale::updateLastLock(String weight) {
+  last5 = last4;
+  last4 = last3;
+  last3 = last2;
+  last2 = last1;
+  last1 = weight;
+  return;
+}
+
+String Scale::getLast1() {
+  return last1;
+}
+String Scale::getLast2() {
+  return last2;
+}
+String Scale::getLast3() {
+  return last3;
+}
+String Scale::getLast4() {
+  return last4;
+}
+String Scale::getLast5() {
+  return last5;
 }
 
 String Scale::getLockOdo() {

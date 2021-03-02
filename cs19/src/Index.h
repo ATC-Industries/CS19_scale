@@ -5,8 +5,6 @@
 
 // Index HTML 
 const char index_html[] PROGMEM = R"rawliteral(
-
-
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -26,14 +24,14 @@ const char index_html[] PROGMEM = R"rawliteral(
     <!-- Custom styles for this template -->
     <link href="style.css" rel="stylesheet">
 
-  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <style>
  
   </style>
 </head>
 <body>
 <!-- Image and text -->
-<nav class="navbar navbar-light bg-light">
+<nav class="navbar navbar-light bg-light"><span class="badge badge-pill badge-primary">BETA</span>
   <a class="navbar-brand d-lg-none" href="#">
     <div style="width: 75px; float: left;"><a href="/">
       <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1577.22 1100.85">
@@ -56,7 +54,46 @@ const char index_html[] PROGMEM = R"rawliteral(
     <sup class="units">%UNIT%</sup>
   </p>
   <div id="locked">%LOCKED%</div>
-  <h5>Last Locked Weight: <span id="lastLocked">%LASTLOCKED%</span></h5>
+
+
+  <div class="text-center mx-auto" style="width: 85%;">
+  <h5>Last Locked Weights <span class="badge badge-pill badge-danger">BETA</span></h5>
+
+  <table class="table table-sm">
+    <!-- <caption><small class="text-muted">*Table of Last locked weights is in beta and should not be trusted as your only means of storing weights. If scale is turned off or if scale resets all previous weights will be cleared and they will be unable to be recalled.</small></caption>-->
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Weight</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row" id="lastNum1">%LASTNUM1%</th>
+        <td id="last1">%LAST1%</td>
+      </tr>
+      <tr>
+        <th scope="row" id="lastNum2">%LASTNUM2%</th>
+        <td id="last2">%LAST2%</td>
+      </tr>
+      <tr>
+        <th scope="row" id="lastNum3">%LASTNUM3%</th>
+        <td id="last3">%LAST3%</td>
+      </tr>
+      <tr>
+        <th scope="row" id="lastNum4">%LASTNUM4%</th>
+        <td id="last4">%LAST4%</td>
+      </tr>
+      <tr>
+        <th scope="row" id="lastNum5">%LASTNUM5%</th>
+        <td id="last5">%LAST5%</td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+
+  <!--<h5>Last Locked Weight: <span id="lastLocked">%LASTLOCKED%</span></h5>-->
 <p class="text-right"><small>FW: <span id="version">%VERSION%</span> <small></p>
 <p class="text-right"><small>LC: <span id="lockedCounter">%LOCKODO%</span> <small></p>
 
@@ -112,9 +149,9 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> -->
-    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   
 </body>
 <script>
@@ -182,16 +219,81 @@ setInterval(function ( ) {
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       document.getElementById("lockedCounter").innerHTML = this.responseText;
+      document.getElementById("lastNum1").innerHTML = this.responseText;
+      document.getElementById("lastNum2").innerHTML = this.responseText - 1;
+      document.getElementById("lastNum3").innerHTML = this.responseText - 2;
+      document.getElementById("lastNum4").innerHTML = this.responseText - 3;
+      document.getElementById("lastNum5").innerHTML = this.responseText - 4;
+
+
     }
   };
   xhttp.open("GET", "/getLockedOdo", true);
   xhttp.send();
 }, 200 ) ;
 
+// Get last 1
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("last1").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/getLast1", true);
+  xhttp.send();
+}, 200 ) ;
+// Get last 2
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("last2").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/getLast2", true);
+  xhttp.send();
+}, 200 ) ;
+// Get last 3
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("last3").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/getLast3", true);
+  xhttp.send();
+}, 200 ) ;
+// Get last 4
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("last4").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/getLast4", true);
+  xhttp.send();
+}, 200 ) ;
+// Get last 5
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("last5").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/getLast5", true);
+  xhttp.send();
+}, 200 ) ;
+
 
 </script>
 
-</html>)rawliteral";
+</html>
+
+)rawliteral";
 
 
 
