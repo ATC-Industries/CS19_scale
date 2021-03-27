@@ -9,7 +9,7 @@
  * 
  */
 #include "Scale.h"
-#include "SPIFFS.h"
+// #include "SPIFFS.h"
 
 bool Scale::isPrintPressed = false; 
 bool Scale::isNewLock = false;
@@ -134,27 +134,6 @@ void Scale::begin(){
         delay(150);
         x = x-1; 
       }
-    }
-
-    // check that files were loaded to spiffs. 
-    if (!SPIFFS.begin(true)) {
-       Serial.println("An Error has occurred while mounting SPIFFS");
-    }
-
-    if(SPIFFS.exists("/style.css")) {
-      int x = 7; 
-      while (x != 0){
-        ledRGBStatus(1,1,0);
-        delay(25);
-        ledRGBStatus(0,0,0);
-        delay(50);
-        x = x - 1;
-      }
-      Serial.println("Stylesheet found");
-
-    } else {
-      ledRGBStatus(0,0,0);
-      Serial.println("No Stylesheet found");
     }
   readScale();
   int timeoutCounter = 0;
@@ -359,7 +338,9 @@ void Scale::readScale(){
     
 
     if (isLocked){
-      for (int i=0;i<30; i++){lastLocked[i]=' ';}
+      for (int i=0;i<30; i++){
+        lastLocked[i]=' ';
+        }
       lastLocked = weight;
       lockedOz = outOz;
     }
@@ -451,6 +432,7 @@ if (hasSignalFlag) {
 }
 
 String Scale::getLegacyWeight(){
+
 if (hasSignalFlag) {
         return legRemWeigh;
     }
@@ -463,10 +445,7 @@ if (hasSignalFlag) {
  * @return String 
  */
 String Scale::getUnits() {
-// if (!hasSignalFlag) {
-//     return "";
-//   }
-//   else 
+
   if (units == LB) {
     return "lbs";
   } 
@@ -482,6 +461,7 @@ String Scale::getUnits() {
 }
 
 String Scale::getTareMode(){
+
   switch (tareMode)
   {
   case GROSS:
@@ -521,9 +501,6 @@ switch (status)
  * @return String 
  */
 String Scale::getLockStatus() {
-// if (!hasSignalFlag) {
-  //   return "No Signal";
-  // } else 
   if (isLocked) {
     return "LOCKED";
   } else if (!isLocked && atof(weight) <= 0.0) {
@@ -673,10 +650,8 @@ void Scale::netMode(){
 }
 
 void Scale::unitsBtn(){
-  // delay(50);
    Serial2.write('C');
    readScale();
-  // delay(50);
   // Serial.println("Units Button Command Sent");
 
   // unitsBtnCounter++;
@@ -684,4 +659,25 @@ void Scale::unitsBtn(){
 
 void Scale::printBtn(){
    Serial2.write('P');
+}
+
+String Scale::getJSON(){
+  String output;
+  StaticJsonDocument<512> doc;
+
+  doc["weight"] = getWeight();
+  doc["units"] = getUnits();
+  doc["locked"] = getLockStatus();
+  doc["lockedodo"] = lockedCounter;
+
+  JsonArray lastLocked = doc.createNestedArray("lastLocked");
+  lastLocked.add(getLastLocked());
+  lastLocked.add(getLast2());
+  lastLocked.add(getLast3());
+  lastLocked.add(getLast4());
+  lastLocked.add(getLast5());
+
+  serializeJson(doc, output);
+
+  return output;
 }

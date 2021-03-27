@@ -13,6 +13,7 @@
 #include <Arduino.h>
 #include <vector> 
 #include <Preferences.h>
+#include <ArduinoJson.h> 
 
 class Scale {
     private:
@@ -146,6 +147,7 @@ class Scale {
         void checkPref();
         static void changePrintStatus(bool status);
         bool isAuto;
+        String getJSON();
     
 
         

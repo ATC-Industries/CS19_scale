@@ -1,10 +1,17 @@
+// #define CONFIG_ASYNC_TCP_USE_WDT 0
+
 #include <Arduino.h>
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include <AsyncTCP.h>
-#include "SPIFFS.h"
+// #include "SPIFFS.h"
 #include "Scale.h"
-#include "Index.h"
+#include "webfiles/Index.h"
+#include "webfiles/bootstrap.min.css.h"
+#include "webfiles/bootstrap.min.js.h"
+#include "webfiles/jquery-3.3.1.slim.min.js.h"
+#include "webfiles/jquery-slim.min.js.h"
+#include "webfiles/popper.min.js.h"
 #include "Updater.h"
 
 //  ---- FIRMWARE UPDATES ====  //
@@ -22,14 +29,22 @@
 //  1012 - Add startup check for stylesheet and flash purple led
 //  1013 - Fix Units button startup problems
 //  1014 - Add more last locked in table on iPhone
-const int FW_VERSION = 1014;
+//  1015 - increase watchdog timer
+//  1100 - Removed all DAta files moved web stuff to program memory
+struct {
+  int major = 1;
+  int minor = 1;
+  int patch = 0;
+} VERSION;
 
 
 // Set wifi login and password
 const char* ssid     = "ProTournamentScales";
 String password = "987654321";
 const int passAddress = 0;
-unsigned long timer = millis();
+unsigned long timer = millis();  //initial start time
+
+
 
 // Port 80 where the server will be listening
 AsyncWebServer server(80);
@@ -50,9 +65,14 @@ String maxMode = "4";
 // A Scale object instance on Pin 25 and 27
 Scale scale(25,27);
 
-// Get the current Firmware Version
+/**
+ * @brief Get the current Firmware Version
+ * 
+ * @return String 
+ */
 String getVersion() {
-  String versionNum = String(FW_VERSION / 1000) + "." + String(FW_VERSION % 1000 / 100) + "." + String(FW_VERSION % 100);
+  // String versionNum = String(FW_VERSION / 1000) + "." + String(FW_VERSION % 1000 / 100) + "." + String(FW_VERSION % 100);
+  String versionNum = String(VERSION.major) + "." + String(VERSION.minor) + "." + String(VERSION.patch);
   return versionNum;
 }
 
@@ -196,10 +216,51 @@ String processor(const String& var) {
   return String();
 }
 
+// // Replaces placeholder in HTML with values
+// String processor(const String& var) {
+//   //Serial.println(var);
+//   if(var == "WEIGHT"){
+//     return "12.32";
+//   }
+//   else if(var == "LOCKED"){
+//     return "Locked'";
+//   }
+//   else if(var == "VERSION"){
+//     return "1.1.1";
+//   }
+//   else if(var == "UNIT"){
+//     return "lbs";
+//   }
+//   else if (var == "LASTLOCKED") {
+//     return "1.23";
+//   }
+//   else if (var == "LOCKODO") {
+//     return "1234";
+//   }
+//   else if (var == "LAST1") {
+//     return "12.22";
+//   }
+//   else if (var == "LAST2") {
+//     return "12.22";
+//   }
+//   else if (var == "LAST3") {
+//     return "12.22";
+//   }
+//   else if (var == "LAST4") {
+//     return "12.22";
+//   }
+//   else if (var == "LAST5") {
+//     return "12.22";
+//   }
+//   return String();
+// }
+
 void setup() {
 
 
-
+// disableCore0WDT();
+// disableCore1WDT();
+// disableLoopWDT();
 
 
   // TODO uint8_t cardType;
@@ -239,34 +300,42 @@ void setup() {
   Serial.println(myIP);
 
 
-  // Begin SPIFFS
-  if(!SPIFFS.begin()) {
-        Serial.println("An Error has occurred while mounting SPIFFS");
-        return;
-  }
+  // // Begin SPIFFS
+  // if(!SPIFFS.begin()) {
+  //       Serial.println("An Error has occurred while mounting SPIFFS");
+  //       return;
+  // }
 
 
 
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", index_html, processor);
-    Serial.println("Index Requested");
+    if (millis() - timer > 500) {
+          request->send_P(200, "text/html", index_html, processor);
+          timer = millis();
+    }
+    //Serial.println("Index Requested");
   });
   server.on("/weight", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getWeight().c_str());
-    Serial.println(scale.getWeight());
+    //Serial.println(scale.getWeight());
+    //Serial.println("/weight");
+
   });
   server.on("/islockedandprintpressed", HTTP_GET, [](AsyncWebServerRequest *request){
     scale.isAuto = false;
     request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
     scale.changePrintStatus(false); 
+    //Serial.println("/islockedandprintpressed");
     // Serial.println(scale.getWeight());
   });
   server.on("/islockedandauto", HTTP_GET, [](AsyncWebServerRequest *request){
     scale.isAuto = true;
     request->send(200, "text/plain", scale.getPrintButtonStatus().c_str());
     scale.changePrintStatus(false); 
+    //Serial.println("/islockedandauto");
+
     // Serial.println(scale.getWeight());
   });
 
@@ -274,13 +343,15 @@ void setup() {
   // xBee Legacy Radio makes a call to get old style legacy weight
   server.on("/getlegacyweight", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getLegacyWeight().c_str());
+    //Serial.println("/getlegacyweight");
     //Serial.println(scale.getLegacyWeight());
   });
 
   // remote display makes a call to discover the max different display modes available
   server.on("/getmaxmode", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", maxMode.c_str());
-    Serial.println("maxMode");
+    //Serial.println("/getmaxmode");
+    //Serial.println("maxMode");
   });
 
   // Remote display server request
@@ -299,7 +370,8 @@ void setup() {
       //Serial.println();
  
       request->send(200, "text/plain", remoteDisplay(mode).c_str());
-      Serial.println(remoteDisplay(mode).c_str());
+      //Serial.println("/remote");
+      //Serial.println(remoteDisplay(mode).c_str());
   });
 
 server.on(
@@ -310,99 +382,101 @@ server.on(
     [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
       //char mac[len];
       for (size_t i = 0; i < len; i++) {
-        Serial.write(data[i]);
+        //Serial.write(data[i]);
       }
  
-      Serial.println();
+      //Serial.println();
       request->send_P(200, "text/html", index_html, processor);
+      //Serial.println("/remoteMode");
       //request->send(200, "text/plain", remoteDisplay(mac).c_str());
   });
 
+  server.on("/getJSON", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(200, "application/json", scale.getJSON().c_str());
+    Serial.println(scale.getJSON().c_str());
+  });
+
+  // server.on("/getJSONy", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   request->send(200, "application/json", "result");
+  //   //Serial.println(scale.getJSON().c_str());
+  // });
 
   server.on("/getUnits", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getUnits().c_str());
+    //Serial.println("/getUnits");
     //Serial.println("Weight Sent");
   });
   server.on("/isLocked", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getLockStatus().c_str());
+    //Serial.println("/isLocked");
     //Serial.println("locked status Sent");
   });
   server.on("/getLastLocked", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLastLocked().c_str());
+    //Serial.println("/getLastLocked");
     //Serial.println("last locked value Sent");
   });
   server.on("/getLast1", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLast1().c_str());
+    //Serial.println("/getLast1");
     //Serial.println("last locked value Sent");
   });
   server.on("/getLast2", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLast2().c_str());
+    //Serial.println("/getLast2");
     //Serial.println("last locked value Sent");
   });
   server.on("/getLast3", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLast3().c_str());
+    //Serial.println("/getLast3");
     //Serial.println("last locked value Sent");
   });
   server.on("/getLast4", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLast4().c_str());
+    //Serial.println("/getLast4");
     //Serial.println("last locked value Sent");
   });
   server.on("/getLast5", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLast5().c_str());
+    //Serial.println("/getLast5");
     //Serial.println("last locked value Sent");
   });
   server.on("/getLockedOdo", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLockOdo().c_str());
+    //Serial.println("/getLockedOdo");
     //Serial.println("last locked value Sent");
   });
 
 
-  // Route to load style.css file
-server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/style.css", "text/css");
-});
-
 // Route to load bootstrap.css file
 server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/bootstrap.min.css", "text/css");
+        request->send_P(200, "text/css", bootstrap_min_css);
+        //Serial.println("/bootstrap.min.css");
 });
 
-// Route to load logo file
-server.on("/pts.png", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/pts.png", "image/png");
-});
-
-// Route to load logo file
-server.on("/pts.svg", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/pts.svg", "image/svg+xml");
-});
-server.on("/pts-white.svg", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/pts-white.svg", "image/svg+xml");
-});
-
-// Route to load favicon.ico file
-server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/favicon.ico", "image/x-icon");
-});
 
 // Route to load jQuery js file
 server.on("/jquery-3.3.1.slim.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/jquery-3.3.1.slim.min.js", "application/javascript");
+        request->send_P(200, "application/javascript", jquery_3_3_1_slim_min_js);
+        //Serial.println("/jquery-3.3.1.slim.min.js");
 });
 
 // Route to load popper js file
 server.on("/popper.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/popper.min.js", "application/javascript");
+        request->send_P(200, "application/javascript", popper_min_js);
+        //Serial.println("/popper.min.js");
 });
 
 // Route to load bootstrap.js file
 server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/bootstrap.min.js", "application/javascript");
+        request->send_P(200, "application/javascript", bootstrap_min_js);
+        //Serial.println("/bootstrap.min.js");
 });
 
 // Route to load jquery js file
 server.on("/jquery-slim.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/jquery-slim.min.js", "application/javascript");
+        request->send_P(200, "application/javascript", jquery_slim_min_js);
+        //Serial.println("/jquery-slim.min.js");
 });
 
 server.onNotFound([](AsyncWebServerRequest *request){
