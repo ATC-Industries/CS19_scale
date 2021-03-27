@@ -14,6 +14,7 @@
 #include "webfiles/popper.min.js.h"
 #include "Updater.h"
 
+
 //  ---- FIRMWARE UPDATES ====  //
 //  1001 - Initial Design
 //  1002 -
@@ -31,20 +32,15 @@
 //  1014 - Add more last locked in table on iPhone
 //  1015 - increase watchdog timer
 //  1100 - Removed all DAta files moved web stuff to program memory
-struct {
+extern struct {
   int major = 1;
   int minor = 1;
   int patch = 0;
 } VERSION;
 
-
 // Set wifi login and password
 const char* ssid     = "ProTournamentScales";
 String password = "987654321";
-const int passAddress = 0;
-unsigned long timer = millis();  //initial start time
-
-
 
 // Port 80 where the server will be listening
 AsyncWebServer server(80);
@@ -56,233 +52,19 @@ AsyncEventSource events("/events");
 IPAddress local_IP(192, 168, 1, 184);
 // Set your Gateway IP address  0.0.0.0 means no router, this will allow mobile phones to still connect to internet using data.
 IPAddress gateway(0, 0, 0, 0);
-
 IPAddress subnet(255, 255, 255, 0);
 
 // Number of modes available.  requesteted by remote display to calculate mode switching
 String maxMode = "4";
 
-// A Scale object instance on Pin 25 and 27
-Scale scale(25,27);
-
-/**
- * @brief Get the current Firmware Version
- * 
- * @return String 
- */
-String getVersion() {
-  // String versionNum = String(FW_VERSION / 1000) + "." + String(FW_VERSION % 1000 / 100) + "." + String(FW_VERSION % 100);
-  String versionNum = String(VERSION.major) + "." + String(VERSION.minor) + "." + String(VERSION.patch);
-  return versionNum;
-}
-
-String processStringForRemote(String weight, String oz) {
-  String s = "";
-  if (scale.getUnits() == "") {                 // if empty string returned in lbs oz mode
-    int tempLb = weight.toInt();                // get lbs from scale and convert to int
-    float tempOz = oz.toFloat();                // convert oz to a float
-    if (tempLb <= 0 && tempOz < 0.1) {          // check if less than 0lb 0.1oz
-      s = " 0. 0";                              // if it is print 0. 0
-    } else {                                    // if not then print real weight    
-      if (tempLb < 10) {
-        s = " ";
-      } else {
-        s = "";
-      }
-      s += tempLb;                               // make it the String
-      if (tempOz < 10.0 ){                      // if oz is less than 10
-        s += ". ";                              // we need to add a space between lb and oz
-      } else {                                  // if it's greater than 10
-        s += ".";                               // no space needed
-      }
-      s += tempOz;                              // now append the ounces  Remote display should cut off decimal if needed.
-    }
-  }
-  else if (scale.getUnits() == "kg") {
-      s = weight;                                // must be in Kg mode 
-    int decimalCounter = 0;
-    s.replace(" ", "");                         // delete all the spaces
-    // loop through weight to see if there are no decimals
-    for (int i = 0; i < s.length(); i++) {
-      if (s[i] == '.') {
-        decimalCounter++;
-      } 
-    }
-    if (decimalCounter > 0) {
-      if (s.toFloat() < 0.050) {                    // check if value is less than .01
-        s = "0.000";                              //  if it is just display zeros
-      }
-    } else {
-      if (s.toInt() < 5) {
-        s = "   0";
-      }
-    }
-    //s = String(s.toFloat());
-  }
-  else { 
-    s = weight;                                      // must be in Lb mode 
-    int decimalCounter = 0;
-    s.replace(" ", "");                         // delete all the spaces
-    // loop through weight to see if there are no decimals
-    for (int i = 0; i < s.length(); i++) {
-      if (s[i] == '.') {
-        decimalCounter++;
-      } 
-    }
-    if (decimalCounter > 0) {
-      if (s.toFloat() < 0.1) {                    // check if value is less than .01
-        s = " 0.00";                              //  if it is just display zeros
-      }
-    } else {
-      if (s.toInt() < 5) {
-        s = "   0";
-      }
-    }
-  }                                             // otherwise business as usual
-  return s;
-}
-
-String remoteDisplay(char *mode) {
-  switch (*mode)
-  {
-  case '1':
-    /* Mode 1 is Normal Weiging Mode */
-    return processStringForRemote(scale.getWeight(), scale.getOz());
-    break;
-  case '2':
-    /* Mode 2 will hold weight until new weight is locked */
-    return processStringForRemote(scale.getLastLocked(), scale.getLockedOz());
-    break;
-  case '3':
-    /* Mode 3 will 'biggest loser' style randomization */
-    if (scale.getLockStatus() == "Calculating...") {
-      float r = (rand() / (float)RAND_MAX * (20));
-      return processStringForRemote(String(r), String(rand() % 15));
-    } else {
-      return processStringForRemote(scale.getWeight(), scale.getOz());
-    }
-    break;
-  case '4':
-    /* Mode 4 will display 0.00 when scale is 0, ---- when calculating and the locked weight when locked */
-    if (scale.getLockStatus() == "Calculating...") {
-      return "----";
-    } else {
-      return processStringForRemote(scale.getWeight(), scale.getOz());
-    }
-    break;
-  default:
-    /* Default back to normal weighing as default catch all */
-    return processStringForRemote(scale.getWeight(), scale.getOz());
-    break;
-  }
-}
-
-// Replaces placeholder in HTML with values
-String processor(const String& var) {
-  //Serial.println(var);
-  if(var == "WEIGHT"){
-    return scale.getWeight();
-  }
-  else if(var == "LOCKED"){
-    return scale.getLockStatus();
-  }
-  else if(var == "VERSION"){
-    return getVersion();
-  }
-  else if(var == "UNIT"){
-    return scale.getUnits();
-  }
-  else if (var == "LASTLOCKED") {
-    return scale.getLastLocked();
-  }
-  else if (var == "LOCKODO") {
-    return scale.getLockOdo();
-  }
-  else if (var == "LAST1") {
-    return scale.getLast1();
-  }
-  else if (var == "LAST2") {
-    return scale.getLast2();
-  }
-  else if (var == "LAST3") {
-    return scale.getLast3();
-  }
-  else if (var == "LAST4") {
-    return scale.getLast4();
-  }
-  else if (var == "LAST5") {
-    return scale.getLast5();
-  }
-  return String();
-}
-
-// // Replaces placeholder in HTML with values
-// String processor(const String& var) {
-//   //Serial.println(var);
-//   if(var == "WEIGHT"){
-//     return "12.32";
-//   }
-//   else if(var == "LOCKED"){
-//     return "Locked'";
-//   }
-//   else if(var == "VERSION"){
-//     return "1.1.1";
-//   }
-//   else if(var == "UNIT"){
-//     return "lbs";
-//   }
-//   else if (var == "LASTLOCKED") {
-//     return "1.23";
-//   }
-//   else if (var == "LOCKODO") {
-//     return "1234";
-//   }
-//   else if (var == "LAST1") {
-//     return "12.22";
-//   }
-//   else if (var == "LAST2") {
-//     return "12.22";
-//   }
-//   else if (var == "LAST3") {
-//     return "12.22";
-//   }
-//   else if (var == "LAST4") {
-//     return "12.22";
-//   }
-//   else if (var == "LAST5") {
-//     return "12.22";
-//   }
-//   return String();
-// }
 
 void setup() {
 
-
-// disableCore0WDT();
-// disableCore1WDT();
-// disableLoopWDT();
-
-
-  // TODO uint8_t cardType;
   Serial.begin(115200);                      // start serial port 0 (debug monitor and programming port)
   Serial.println("Booting Up...");
   Serial.print("Software Version: ");
-  Serial.println(FW_VERSION);
+  Serial.println(getVersion());
   scale.begin();
-  //Serial.println("Searching for Update...");
-  // //first init and check SD card
-  //  if (!SD.begin()) {
-  //     updater.rebootEspWithReason("Card Mount Failed");
-  //  }
-
-  //  cardType = SD.cardType();
-
-  //  if (cardType == CARD_NONE) {
-  //     updater.rebootEspWithReason("No SD card attached");
-  //  }else{
-  //     updater.updateFromFS(SD);
-  // }
-
 
   // Configures static IP address
   Serial.println("Configuring access point...");
@@ -299,16 +81,6 @@ void setup() {
   Serial.print("AP IP address: ");
   Serial.println(myIP);
 
-
-  // // Begin SPIFFS
-  // if(!SPIFFS.begin()) {
-  //       Serial.println("An Error has occurred while mounting SPIFFS");
-  //       return;
-  // }
-
-
-
-
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     if (millis() - timer > 500) {
@@ -317,6 +89,7 @@ void setup() {
     }
     //Serial.println("Index Requested");
   });
+
   server.on("/weight", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getWeight().c_str());
     //Serial.println(scale.getWeight());
@@ -374,7 +147,7 @@ void setup() {
       //Serial.println(remoteDisplay(mode).c_str());
   });
 
-server.on(
+  server.on(
     "/remoteMode",
     HTTP_POST,
     [](AsyncWebServerRequest * request){},
@@ -384,22 +157,16 @@ server.on(
       for (size_t i = 0; i < len; i++) {
         //Serial.write(data[i]);
       }
- 
       //Serial.println();
       request->send_P(200, "text/html", index_html, processor);
       //Serial.println("/remoteMode");
       //request->send(200, "text/plain", remoteDisplay(mac).c_str());
   });
 
-  server.on("/getJSON", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/v1/getJSON", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "application/json", scale.getJSON().c_str());
     Serial.println(scale.getJSON().c_str());
   });
-
-  // server.on("/getJSONy", HTTP_GET, [](AsyncWebServerRequest *request){
-  //   request->send(200, "application/json", "result");
-  //   //Serial.println(scale.getJSON().c_str());
-  // });
 
   server.on("/getUnits", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", scale.getUnits().c_str());
@@ -416,75 +183,48 @@ server.on(
     //Serial.println("/getLastLocked");
     //Serial.println("last locked value Sent");
   });
-  server.on("/getLast1", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", scale.getLast1().c_str());
-    //Serial.println("/getLast1");
-    //Serial.println("last locked value Sent");
-  });
-  server.on("/getLast2", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", scale.getLast2().c_str());
-    //Serial.println("/getLast2");
-    //Serial.println("last locked value Sent");
-  });
-  server.on("/getLast3", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", scale.getLast3().c_str());
-    //Serial.println("/getLast3");
-    //Serial.println("last locked value Sent");
-  });
-  server.on("/getLast4", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", scale.getLast4().c_str());
-    //Serial.println("/getLast4");
-    //Serial.println("last locked value Sent");
-  });
-  server.on("/getLast5", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", scale.getLast5().c_str());
-    //Serial.println("/getLast5");
-    //Serial.println("last locked value Sent");
-  });
+
   server.on("/getLockedOdo", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", scale.getLockOdo().c_str());
     //Serial.println("/getLockedOdo");
     //Serial.println("last locked value Sent");
   });
 
-
-// Route to load bootstrap.css file
-server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Route to load bootstrap.css file
+  server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "text/css", bootstrap_min_css);
         //Serial.println("/bootstrap.min.css");
-});
+  });
 
-
-// Route to load jQuery js file
-server.on("/jquery-3.3.1.slim.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Route to load jQuery js file
+  server.on("/jquery-3.3.1.slim.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "application/javascript", jquery_3_3_1_slim_min_js);
         //Serial.println("/jquery-3.3.1.slim.min.js");
-});
+  });
 
-// Route to load popper js file
-server.on("/popper.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Route to load popper js file
+  server.on("/popper.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "application/javascript", popper_min_js);
         //Serial.println("/popper.min.js");
-});
+  });
 
-// Route to load bootstrap.js file
-server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Route to load bootstrap.js file
+  server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "application/javascript", bootstrap_min_js);
         //Serial.println("/bootstrap.min.js");
-});
+  });
 
-// Route to load jquery js file
-server.on("/jquery-slim.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Route to load jquery js file
+  server.on("/jquery-slim.min.js", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "application/javascript", jquery_slim_min_js);
         //Serial.println("/jquery-slim.min.js");
-});
+  });
 
-server.onNotFound([](AsyncWebServerRequest *request){
+  server.onNotFound([](AsyncWebServerRequest *request){
         request->send(404);
-});
+  });
 
-
-server.begin();               //start server
+  server.begin();               //start server
 
 }
 

@@ -164,7 +164,7 @@ setInterval(function ( ) {
       
     }
   };
-  xhttp.open("GET", "/getJSON", true);
+  xhttp.open("GET", "/v1/getJSON", true);
   xhttp.send();
 }, 200 ) ;
 
