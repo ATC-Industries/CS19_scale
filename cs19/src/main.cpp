@@ -14,31 +14,16 @@
 
 
 //  ---- FIRMWARE UPDATES ====  //
-//  1001 - Initial Design
-//  1002 -
-//  1003 - 
-//  1004 - Add all styles locally via data upload.
-//  1005 - Add legacy remote checker, blink LED red for no Legacy, RGB for Xbee found
-//  1006 - SHIP - Bobo Albright 
-//  1007 - Add auto print or manual print option, set on printer
-//  1008 - Change RX TX to Xbee to 19/21
-//  1009 - Added units button startup timeout.
-//  1010 - fix weight off by one error / increased max connections from 4 to 10
-//  1011 - Outputs 0.000 to remote display instead of 0.00 when in Kg mode.
-//  1012 - Add startup check for stylesheet and flash purple led
-//  1013 - Fix Units button startup problems
-//  1014 - Add more last locked in table on iPhone
-//  1015 - increase watchdog timer
-//  1.1.0 - Removed all DAta files moved web stuff to program memory
+// See CHANGELOG.md
 struct Version{
   int major = 1;
   int minor = 1;
-  int patch = 0;
+  int patch = 1;
 } VERSION;
 
 // A Scale object instance on Pin 25 and 27
 Scale scale(25,27);
-unsigned long timer = millis();  //initial start time
+// unsigned long timer = millis();  //initial start time
 
 String getVersion();
 String processStringForRemote(String weight, String oz);
@@ -90,10 +75,11 @@ void setup() {
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    if (millis() - timer > 500) {
-          request->send_P(200, "text/html", index_html, processor);
-          timer = millis();
-    }
+    // if (millis() - timer > 500) {
+    //       request->send_P(200, "text/html", index_html, processor);
+    //       timer = millis();
+    // }
+    request->send_P(200, "text/html", index_html, processor);
     //Serial.println("Index Requested");
   });
 
@@ -141,17 +127,19 @@ void setup() {
     [](AsyncWebServerRequest * request){},
     NULL,
     [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+      Serial.print("/remote - REQUEST MADE - Mode: ");
       char mode[len];
       for (size_t i = 0; i < len; i++) {
         //Serial.write(data[i]);
         mode[i] = data[i];
       }
+      Serial.println(mode);
   
       //Serial.println();
  
       request->send(200, "text/plain", remoteDisplay(mode).c_str());
-      //Serial.println("/remote");
-      //Serial.println(remoteDisplay(mode).c_str());
+      Serial.print("/remote - RESPONSE SENT: ");
+      Serial.println(remoteDisplay(mode).c_str());
   });
 
   server.on(
