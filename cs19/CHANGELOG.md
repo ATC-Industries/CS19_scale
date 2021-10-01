@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `/v1/scale/data` is now the prefered method of retrieving data from the scale.
+
 ## [1.1.1] - 2021-05-04
 
 ### Added
