@@ -19,7 +19,7 @@ struct Version
   int patch = 2;
 } VERSION;
 
-// A Scale obje ct instance on Pin 25 and 27
+// A Scale object instance on Pin 25 and 27
 Scale scale(25, 27);
 // unsigned long timer = millis();  //initial start time
 
