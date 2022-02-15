@@ -91,7 +91,7 @@ void Scale::begin()
   pinMode(scale_print_button, INPUT);
   attachInterrupt(digitalPinToInterrupt(scale_print_button), this->Scale::print_pb_isr, CHANGE); // this calls 'print_pb()' when user presses print button on cs-19
   // RS232 comm with xBee Radio
-  Serial1.begin(9600, SERIAL_8N1, 19, 21);
+  Serial1.begin(9600, SERIAL_8N1, 44, 45);
   // RS232 input from CS19
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
@@ -217,10 +217,11 @@ void Scale::readScale()
     switch (rx2_buffer[rx2_pointer])
     {
     case 0x02:              // if beginning of string character reset the pointer
+    case 0x0a:              // MODEL357
       rx2_buffer[0] = 0x02; // set first character to 0x02
       rx2_pointer = 0;      // reset the pointer
       decimalCounter = 0;
-
+      Serial.println("02 or 0a"); //***diagnostic***
       break;
     case 0x2E:
       decimalCounter++;
@@ -229,17 +230,25 @@ void Scale::readScale()
       lock_flag = 1; // set flag so lock light will come on when processing string
       break;
     case 'L':
+    case 'l':
       units = LB;
       checkPref();
       break;
     case 'K':
+    case 'k':
       units = KG;
       checkPref();
       break;
+    case 'o':
+      units = LBOZ;
+      checkPref();
+      break;
     case 'G':
+    case 'g':
       tareMode = GROSS;
       break;
     case 'N':
+    case 'n':
       tareMode = NET;
       break;
     case 0x20:
@@ -253,7 +262,8 @@ void Scale::readScale()
       break;
     case 0x0D:
       //     rx2_buffer[rx2_pointer++] = 0x0A;                   // Add a carriage return to end of string to allow compatibility with FD9 Flip Digit signs.
-      process_buffer_flag = 1; // set flag so code will process buffer
+      Serial.println("end of string"); //***diagnostic***
+      process_buffer_flag = 1;         // set flag so code will process buffer
 
       break;
     default:
@@ -309,7 +319,7 @@ void Scale::readScale()
 
     strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);
     // legacyRemWeight[13] = 0x0A;
-    // Serial.println(legacyRemWeight);
+    Serial.println(legacyRemWeight);
     if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O')
     {
     }
@@ -321,49 +331,60 @@ void Scale::readScale()
     // output weight string
     if (units == LB)
     {
+      Serial.println("process_buffer_flag - LB");
       // Clear weight Char array
       memset(weight, 0, sizeof(weight));
 
-      strncpy(weight, rx2_buffer + 1, 8);
-      // Serial.println(weight);
+      strncpy(weight, rx2_buffer + 1, 9);
+      Serial.println(weight);
     }
     else if (units == KG)
     {
+      Serial.println("process_buffer_flag - KG");
       // Clear weight Char array
       memset(weight, 0, sizeof(weight));
 
-      strncpy(weight, rx2_buffer + 1, 8);
-      // Serial.println(weight);
+      strncpy(weight, rx2_buffer + 1, 9);
+      Serial.println(weight);
     }
 
     else if (units == LBOZ)
     {
+      Serial.println("process_buffer_flag - LBOZ");
+
+      memmove(weight, rx2_buffer + 2, 13);
+
+      Serial.println(weight);
       // for (int i=0;i<30; i++){weight[i]=' ';}
-      memset(weight, 0, sizeof(weight));
-      memset(outLb, 0, sizeof(outLb));
-      memset(outOz, 0, sizeof(outOz));
+      // memset(weight, 0, sizeof(weight));
+      // memset(outLb, 0, sizeof(outLb));
+      // memset(outOz, 0, sizeof(outOz));
       // for (int i=0;i<2; i++){outLb[i]=' ';}
       // for (int i=0;i<4; i++){outOz[i]=' ';}
 
-      char outLbOz[12];
-      strncpy(outLb, rx2_buffer + 3, 2);
-      strncpy(outOz, rx2_buffer + 6, 4);
-      for (int i = 0; i < 2; i++)
-      {
-        outLbOz[i] = outLb[i];
-      }
-      outLbOz[2] = 'l';
-      outLbOz[3] = 'b';
-      outLbOz[4] = ' ';
-      for (int i = 0; i < 4; i++)
-      {
-        outLbOz[i + 5] = outOz[i];
-      }
-      outLbOz[9] = 'o';
-      outLbOz[10] = 'z';
-      outLbOz[11] = '\0'; // terminate the char*
+      // char outLbOz[12];
+      memmove(outLb, rx2_buffer + 2, 3);
+      memmove(outOz, rx2_buffer + 9, 4);
+      Serial.print("outLb = ");
+      Serial.println(outLb);
+      Serial.print("outOz = ");
+      Serial.println(outOz);
+      // for (int i = 0; i < 2; i++)
+      // {
+      //   outLbOz[i] = outLb[i];
+      // }
+      // outLbOz[2] = 'l';
+      // outLbOz[3] = 'b';
+      // outLbOz[4] = ' ';
+      // for (int i = 0; i < 4; i++)
+      // {
+      //   outLbOz[i + 5] = outOz[i];
+      // }
+      // outLbOz[9] = 'o';
+      // outLbOz[10] = 'z';
+      // outLbOz[11] = '\0'; // terminate the char*
 
-      strncpy(weight, outLbOz, 12); // create output string from outLbOz
+      // strncpy(weight, outLbOz, 12); // create output string from outLbOz
     }
     else
     {

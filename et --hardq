@@ -1,0 +1,257 @@
+[33mcommit a9b7570475d5222998f00d2947c38ed1ccd52a24[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;33mtag: v1.1.1[m[33m)[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Apr 5 09:09:38 2021 -0400
+
+    add a changelog
+
+[33mcommit 91c6793e838ff1ba36b7ffebb9b8d55616f993cd[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Mar 29 11:43:45 2021 -0400
+
+    fixxed includes issues
+
+[33mcommit 6abbef102ce65c67e32dc18f09d9a0875918ad23[m[33m ([m[1;33mtag: v1.1.0[m[33m)[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Mar 26 20:57:19 2021 -0400
+
+    moved helper functions to own file
+
+[33mcommit 2c7613004ad503c183ca7f8655958ed1a64dd169[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Mar 26 20:24:58 2021 -0400
+
+    refactored the f to make not crash on phones
+
+[33mcommit 398b9c3197297cd39e24e370353305ca60cafabb[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Mar 2 09:08:08 2021 -0500
+
+    V1014 add table of last 5 locked weights
+
+[33mcommit f8c2126b194e0848953dadf929019b90516a6007[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Feb 26 11:20:43 2021 -0500
+
+    Updated Locked ODO to update each time
+
+[33mcommit 5b7f5bd6404489d2189d43cd4d78ee546a40bbe2[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Feb 12 11:42:05 2021 -0500
+
+    fix start up loc for units BS
+
+[33mcommit bab9c86ef8d0e8457a9cf8ee8e498b0d6a133a2d[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Dec 15 16:52:53 2020 -0500
+
+    fixed unit swap on startup
+
+[33mcommit bd58c02ae9bb722f3c344fe7800e43f857e65bad[m[33m ([m[1;33mtag: v1012[m[33m)[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Aug 31 11:40:45 2020 -0400
+
+    Update to 1012
+
+[33mcommit a804263ba584ebaf01965c683e0a033c477d0fe9[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Aug 17 08:46:45 2020 -0400
+
+    V1011, fix RD output to 0.000 in kg mode
+
+[33mcommit 46ab4bfe0178fa3fe54b8a87f161979055270e37[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Thu May 21 08:32:29 2020 -0400
+
+    refactotr
+
+[33mcommit fc65051a9c78811d72d498796f79f1fcc1819129[m[33m ([m[1;33mtag: v1010[m[33m, [m[1;33mtag: v1.0.7[m[33m, [m[1;33mtag: v1.0.10[m[33m)[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri May 8 12:20:26 2020 -0400
+
+    add note
+
+[33mcommit 22b9dd93761e69f5376624f3d615737cd2f4a3e5[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri May 8 12:17:07 2020 -0400
+
+    fix off by one error that caused massive RD failur
+
+[33mcommit 083320af9c5e488fe405ea8df3264757810c79f4[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri May 8 07:45:42 2020 -0400
+
+    refactor, cleaned up old code
+
+[33mcommit 94ef5451269846cb447da2a22b4dd2cf7fb0a2b3[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Thu Apr 23 09:32:50 2020 -0400
+
+    add units button startup timeout
+
+[33mcommit b28bd5bef3ecb39270214688af0e59bd2532dda4[m[33m ([m[1;33mtag: v1007[m[33m)[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 31 16:57:21 2020 -0500
+
+    if last units is lbs then hit units button on boot
+
+[33mcommit 2799e52c05d819f2ba48838545e9dfd4c41360d8[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 31 14:06:39 2020 -0500
+
+    Rem'd out EEPROM code form main
+
+[33mcommit e46188708dd2c71e804df3abbf78465b019b407e[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 31 13:17:30 2020 -0500
+
+    remove almost all code from printer btn ISR
+
+[33mcommit faaaa2dd032408cd0bf3596ee514d3988358c8c8[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Thu Jan 30 16:44:41 2020 -0500
+
+    made CS19 send approbiate lock weight or print button weight
+
+[33mcommit 9b5942b41753cc3e4d16ace500ea34633d55dfa6[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Thu Jan 30 13:40:55 2020 -0500
+
+    respong to printer with auto or man
+
+[33mcommit 926674caa1ea7f24e30941d83aa57ba92bc092af[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 24 14:50:49 2020 -0500
+
+    version
+
+[33mcommit 3bef081e879e281c4ef72606bfa8ca4cd890a0a7[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 24 14:19:32 2020 -0500
+
+    update version number
+
+[33mcommit 8da38153e98a9f78ddac4785b8fc3288c808e8ef[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 24 14:11:26 2020 -0500
+
+    update version number
+
+[33mcommit 3484e0611cbec93470c8571acd7c0b7071943e88[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Wed Jan 22 13:40:28 2020 -0500
+
+    modify ticket for caney creek bass club
+
+[33mcommit 0c2899500c76503d376f8698ad55bfb254235186[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Jan 21 14:22:21 2020 -0500
+
+    add autoprint on lock mode. hard code
+
+[33mcommit cd6460b10f23766a2c5b87afa0699e7f9abf7528[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Jan 21 12:42:34 2020 -0500
+
+    change printer oz output precision to 1 decimal
+
+[33mcommit e02944af4453696b2631c7c02e3dc51a2226c6df[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Jan 20 17:13:01 2020 -0500
+
+    Changed output of weight to printer
+
+[33mcommit 642d8989c3b82509147603b596f9924d212ff23c[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Jan 20 15:43:26 2020 -0500
+
+    attempt to debounce print isr
+
+[33mcommit b1f094cb2ba8f11524f93a784e00092e959647d5[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Jan 20 11:29:20 2020 -0500
+
+    change lastlocked method to only send a substring.
+
+[33mcommit 8e3cb81ae4a85b15544f351c52503540243c1a3d[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Jan 20 08:52:27 2020 -0500
+
+    change print on lock only
+
+[33mcommit ad93d5dc774e7e671b44a80a737360a1dda3442b[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Mon Jan 20 08:00:35 2020 -0500
+
+    add is print pressed method
+
+[33mcommit de3e46a91445c425f129cced2ec9e48f5d83da01[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Jan 14 13:20:46 2020 -0500
+
+    final units auto change done
+
+[33mcommit 092c8a6dfd1b5dfbaebf9fecac89528dd6a851ef[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Jan 14 12:20:07 2020 -0500
+
+    fix crashing on unit swap
+
+[33mcommit 8dcf954c7d290780e8d38a4ed6d37c5804c35614[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Jan 14 10:09:09 2020 -0500
+
+    fix 0.00 being displayed in 1000lb mode
+
+[33mcommit b8ca3e7347a90b573e21792440d1bd64c1afcb87[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Jan 14 09:55:10 2020 -0500
+
+    scale recalls lst weight
+
+[33mcommit b5e7722057fcc32593824ab03caaecc0c57b2a3c[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Tue Jan 14 09:35:09 2020 -0500
+
+    save units to eeprom
+
+[33mcommit 6cfa8cd498595a06efa74b1af34a9c22565daa0b[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 10 16:50:33 2020 -0500
+
+    move bootup unit changer to readScale()
+
+[33mcommit 6042311941b63c15388d7001d6b2c2d91e97beb4[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 10 16:26:13 2020 -0500
+
+    add units button on startup if LBOZ
+
+[33mcommit 5fe476856b72cbd3dbbac9593117e72e2475bcc9[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 10 13:02:06 2020 -0500
+
+    turn off logging text
+
+[33mcommit df1655c5e968e80a448173de6b0390e8e1220b6a[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 10 09:34:36 2020 -0500
+
+    version 1005
+
+[33mcommit e190b9e78c94a073904f6a9d38748ca4143e59c9[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Fri Jan 10 08:33:28 2020 -0500
+
+    Fix dim lock LED on startup
+
+[33mcommit 980eb991eec92ece876bd710900434b0ae1eaadd[m
+Author: atclarkson <atclarkson@gmail.com>
+Date:   Thu Jan 9 15:58:32 2020 -0500
+
+    init commit
+
+[33mcommit e979548ba0fae32cdfeb76c41ebde92dc93df675[m
+Author: Adam Clarkson <atclarkson@gmail.com>
+Date:   Thu Jan 9 15:53:58 2020 -0500
+
+    Initial commit

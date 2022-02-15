@@ -20,7 +20,8 @@ struct Version
 } VERSION;
 
 // A Scale object instance on Pin 25 and 27
-Scale scale(25, 27);
+// Scale scale(25, 27);
+Scale scale(21, 19); // MODEL357
 // unsigned long timer = millis();  //initial start time
 
 String getVersion();
@@ -45,12 +46,12 @@ IPAddress gateway(0, 0, 0, 0);
 IPAddress subnet(255, 255, 255, 0);
 
 // Number of modes available.  requesteted by remote display to calculate mode switching
-String maxMode = "4";
+String maxMode = "1"; // MODEL357
 
 void setup()
 {
-
-  Serial.begin(115200); // start serial port 0 (debug monitor and programming port)
+  setCpuFrequencyMhz(80); // Decrease clock speed in order to
+  Serial.begin(115200);   // start serial port 0 (debug monitor and programming port)
   Serial.println("Booting Up...");
   Serial.print("Software Version: ");
   Serial.println(getVersion());
@@ -60,7 +61,8 @@ void setup()
   Serial.println("Configuring access point...");
   // Setup wifi access point
   WiFi.mode(WIFI_AP);
-  // specify the local IP address, gateway and subnet mask
+  // WiFi.setTxPower(WIFI_POWER_7dBm);
+  //  specify the local IP address, gateway and subnet mask
   Serial.println("Set softAPConfig");
   WiFi.softAPConfig(local_IP, gateway, subnet);
 
@@ -115,6 +117,7 @@ void setup()
 
         // Serial.println();
 
+        Serial.println(mode);
         request->send(200, "text/plain", remoteDisplay(mode).c_str());
         Serial.print("/remote - RESPONSE SENT: ");
         Serial.println(remoteDisplay(mode).c_str());
@@ -194,12 +197,21 @@ String getVersion()
 
 String processStringForRemote(String weight, String oz)
 {
+  Serial.print("weight coming to processor is: ");
+  Serial.println(weight);
+  Serial.print("oz coming to processor is: ");
+  Serial.println(oz);
   String s = "";
   if (scale.getUnits() == "")
-  {                              // if empty string returned in lbs oz mode
+  { // if empty string returned in lbs oz mode
+    Serial.println("empty string returned in lbs oz mode");
     int tempLb = weight.toInt(); // get lbs from scale and convert to int
+    Serial.print("tempLb = ");
+    Serial.println(tempLb);
     float tempOz = oz.toFloat(); // convert oz to a float
-    if (tempLb <= 0 && tempOz < 0.1)
+    Serial.print("tempOz = ");
+    Serial.println(tempOz);
+    if (tempLb <= 0)
     {              // check if less than 0lb 0.1oz
       s = " 0. 0"; // if it is print 0. 0
     }
@@ -227,6 +239,7 @@ String processStringForRemote(String weight, String oz)
   }
   else if (scale.getUnits() == "kg")
   {
+    Serial.println("must be in Kg mode");
     s = weight; // must be in Kg mode
     int decimalCounter = 0;
     s.replace(" ", ""); // delete all the spaces
@@ -256,7 +269,8 @@ String processStringForRemote(String weight, String oz)
   }
   else
   {
-    s = weight; // must be in Lb mode
+    Serial.println("must be in Lb mode");
+    s = weight;
     int decimalCounter = 0;
     s.replace(" ", ""); // delete all the spaces
     // loop through weight to see if there are no decimals
@@ -291,14 +305,17 @@ String remoteDisplay(char *mode)
   {
   case '1':
     /* Mode 1 is Normal Weiging Mode */
+    Serial.println("Mode 1 is Normal Weiging Mode");
     return processStringForRemote(scale.getWeight(), scale.getOz());
     break;
   case '2':
     /* Mode 2 will hold weight until new weight is locked */
+    Serial.println("Mode 2 will hold weight until new weight is locked");
     return processStringForRemote(scale.getLastLocked(), scale.getLockedOz());
     break;
   case '3':
     /* Mode 3 will 'biggest loser' style randomization */
+    Serial.println("Mode 3 will 'biggest loser' style randomization");
     if (scale.getLockStatus() == "Calculating...")
     {
       float r = (rand() / (float)RAND_MAX * (20));
@@ -311,6 +328,7 @@ String remoteDisplay(char *mode)
     break;
   case '4':
     /* Mode 4 will display 0.00 when scale is 0, ---- when calculating and the locked weight when locked */
+    Serial.println("Mode 4 will display 0.00 when scale is 0, ---- when calculating and the locked weight when locked ");
     if (scale.getLockStatus() == "Calculating...")
     {
       return "----";
@@ -322,6 +340,7 @@ String remoteDisplay(char *mode)
     break;
   default:
     /* Default back to normal weighing as default catch all */
+    Serial.println("Default back to normal weighing as default catch all");
     return processStringForRemote(scale.getWeight(), scale.getOz());
     break;
   }
