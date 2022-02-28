@@ -14,9 +14,10 @@
 // See CHANGELOG.md
 struct Version
 {
-  int major = 1;
-  int minor = 1;
+  int major = 0;
+  int minor = 0;
   int patch = 2;
+  bool isBeta = true;
 } VERSION;
 
 // A Scale object instance on Pin 25 and 27
@@ -50,7 +51,7 @@ String maxMode = "1"; // MODEL357
 
 void setup()
 {
-  setCpuFrequencyMhz(80); // Decrease clock speed in order to
+  setCpuFrequencyMhz(80); // Decrease clock speed in order to save battery
   Serial.begin(115200);   // start serial port 0 (debug monitor and programming port)
   Serial.println("Booting Up...");
   Serial.print("Software Version: ");
@@ -106,18 +107,18 @@ void setup()
       NULL,
       [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
       {
-        Serial.print("/remote - REQUEST MADE - Mode: ");
+        Serial.print("/remote - REQUEST MADE");
         char mode[len];
         for (size_t i = 0; i < len; i++)
         {
           // Serial.write(data[i]);
           mode[i] = data[i];
         }
-        Serial.println(mode);
+        // Serial.println(mode);
 
         // Serial.println();
 
-        Serial.println(mode);
+        // Serial.println(mode);
         request->send(200, "text/plain", remoteDisplay(mode).c_str());
         Serial.print("/remote - RESPONSE SENT: ");
         Serial.println(remoteDisplay(mode).c_str());
@@ -156,8 +157,8 @@ void setup()
   server.on("/getLastLocked", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(200, "text/plain", scale.getLastLocked().c_str()); });
 
-  server.on("/getLockedOdo", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(200, "text/plain", scale.getLockOdo().c_str()); });
+  // server.on("/getLockedOdo", HTTP_GET, [](AsyncWebServerRequest *request)
+  //           { request->send(200, "text/plain", scale.getLockOdo().c_str()); });
 
   // Route to load bootstrap.css file
   server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -192,7 +193,7 @@ void loop()
 
 String getVersion()
 {
-  return String(VERSION.major) + "." + String(VERSION.minor) + "." + String(VERSION.patch);
+  return String(VERSION.major) + "." + String(VERSION.minor) + "." + String(VERSION.patch) + ((VERSION.isBeta) ? "-beta" : "");
 }
 
 String processStringForRemote(String weight, String oz)
@@ -372,7 +373,8 @@ String processor(const String &var)
   }
   else if (var == "LOCKODO")
   {
-    return scale.getLockOdo();
+    return "0000";
+    // return scale.getLockOdo();
   }
   else if (var == "LAST1")
   {

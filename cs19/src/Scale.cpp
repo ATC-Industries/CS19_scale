@@ -80,105 +80,105 @@ Scale::~Scale() {}
 void Scale::begin()
 {
   isBootUp = true;
-  preferences.begin("my-app", false);
-  lockedCounter = preferences.getUInt("lockedCounter", 0);
-  Serial.println("Total number of Locks: " + String(lockedCounter));
+  // preferences.begin("my-app", false);
+  //  lockedCounter = preferences.getUInt("lockedCounter", 0);
+  // Serial.println("Total number of Locks: " + String(lockedCounter));
   units = NOTUSED;
-  lastUnits = preferences.getUInt("lastUnits", 0);
-  preferences.end();
-  // Make sure LEDs are off first thing
+  // lastUnits = preferences.getUInt("lastUnits", 0);
+  //  preferences.end();
+  //  Make sure LEDs are off first thing
   ledRGBStatus(0, 0, 0);
-  pinMode(scale_print_button, INPUT);
-  attachInterrupt(digitalPinToInterrupt(scale_print_button), this->Scale::print_pb_isr, CHANGE); // this calls 'print_pb()' when user presses print button on cs-19
+  // pinMode(scale_print_button, INPUT);
+  // attachInterrupt(digitalPinToInterrupt(scale_print_button), this->Scale::print_pb_isr, CHANGE); // this calls 'print_pb()' when user presses print button on cs-19
   // RS232 comm with xBee Radio
   Serial1.begin(9600, SERIAL_8N1, 44, 45);
   // RS232 input from CS19
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
-  delay(1000);
-  Serial1.print("+++");
-  Serial.println("\n+++ Sent");
-  delay(1500);
-  if (Serial1.available())
-  {
-    String response = Serial1.readStringUntil('\n');
-    Serial.println(response);
-    response.trim();
-    if (response.equals("OK"))
-    {
-      Serial.println("xBee Radio Found");
-      //  Rainbow the leds at startup
-      for (int i = 0; i < 4; i++)
-      {
-        ledRGBStatus(1, 0, 0);
-        delay(300);
-        ledRGBStatus(0, 1, 0);
-        delay(300);
-        ledRGBStatus(0, 0, 1);
-        delay(300);
-      }
-      ledRGBStatus(0, 0, 0);
-    }
-    else
-    {
-      Serial.println("No Legacy Board Found");
-      // Blink LOCKED LED at startup
-      int x = 8;
-      while (x != 0)
-      {
-        ledRGBStatus(1, 0, 0);
-        delay(150);
-        ledRGBStatus(0, 0, 0);
-        delay(150);
-        x = x - 1;
-      }
-    }
-  }
-  else
-  {
-    Serial.println("No Legacy Board Found");
-    // Blink LOCKED LED at startup
-    int x = 8;
-    while (x != 0)
-    {
-      ledRGBStatus(1, 0, 0);
-      delay(150);
-      ledRGBStatus(0, 0, 0);
-      delay(150);
-      x = x - 1;
-    }
-  }
+  // delay(1000);
+  // Serial1.print("+++");
+  // Serial.println("\n+++ Sent");
+  // delay(1500);
+  // if (Serial1.available())
+  // {
+  //   String response = Serial1.readStringUntil('\n');
+  //   Serial.println(response);
+  //   response.trim();
+  //   if (response.equals("OK"))
+  //   {
+  //     Serial.println("xBee Radio Found");
+  //     //  Rainbow the leds at startup
+  //     for (int i = 0; i < 4; i++)
+  //     {
+  //       ledRGBStatus(1, 0, 0);
+  //       delay(300);
+  //       ledRGBStatus(0, 1, 0);
+  //       delay(300);
+  //       ledRGBStatus(0, 0, 1);
+  //       delay(300);
+  //     }
+  //     ledRGBStatus(0, 0, 0);
+  //   }
+  //   else
+  //   {
+  //     Serial.println("No Legacy Board Found");
+  //     // Blink LOCKED LED at startup
+  //     int x = 8;
+  //     while (x != 0)
+  //     {
+  //       ledRGBStatus(1, 0, 0);
+  //       delay(150);
+  //       ledRGBStatus(0, 0, 0);
+  //       delay(150);
+  //       x = x - 1;
+  //     }
+  //   }
+  // }
+  // else
+  // {
+  //   Serial.println("No Legacy Board Found");
+  //   // Blink LOCKED LED at startup
+  //   int x = 8;
+  //   while (x != 0)
+  //   {
+  //     ledRGBStatus(1, 0, 0);
+  //     delay(150);
+  //     ledRGBStatus(0, 0, 0);
+  //     delay(150);
+  //     x = x - 1;
+  //   }
+  // }
   readScale();
-  int timeoutCounter = 0;
+  //  int timeoutCounter = 0;
 
   // while(units == NOTUSED){
   //   Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Loading... ");
   //   readScale();
   // }
-  while (units != lastUnits)
-  {
-    unitsBtn();
-    Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Should be: " + String(lastUnits) + ". Pressing Units... ");
-    timeoutCounter++;
-    readScale();
-    if (timeoutCounter > 0)
-    {
-      break;
-    }
-  }
+  // while (units != lastUnits)
+  // {
+  //   unitsBtn();
+  //   Serial.println("Checking Units: " + String(static_cast<int>(units)) + ". Should be: " + String(lastUnits) + ". Pressing Units... ");
+  //   timeoutCounter++;
+  //   readScale();
+  //   if (timeoutCounter > 0)
+  //   {
+  //     break;
+  //   }
+  // }
   isBootUp = false;
 }
 
-/**
- * @brief Interupt Service Routine to for Print button
- *
- */
-void IRAM_ATTR Scale::print_pb_isr()
-{ // This is an  isr that is called when CS-19 print button is pressed
-  portENTER_CRITICAL_ISR(&mux);
-  isPrintButtonPressed = true;
-  portEXIT_CRITICAL_ISR(&mux);
-}
+// /**
+//  * @brief Interupt Service Routine to for Print button
+//  *
+//  */
+// void IRAM_ATTR Scale::print_pb_isr()
+// { // This is an  isr that is called when CS-19 print button is pressed
+//   portENTER_CRITICAL_ISR(&mux);
+//   isPrintButtonPressed = true;
+//   portEXIT_CRITICAL_ISR(&mux);
+// }
 
 /**
  * @brief read scale RS232 signal
@@ -186,24 +186,24 @@ void IRAM_ATTR Scale::print_pb_isr()
  */
 void Scale::readScale()
 {
-  if (isPrintButtonPressed)
-  {
-    // insert code here to execute when cs19 print button is pressed
-    //  NOTE this routine will be called for every character coming in off of serial port.
-    //  need code eliminate duplicates
-    static unsigned long last_interrupt_time = 0;
-    unsigned long interrupt_time = millis();
-    // If interrupts come faster than 200ms, assume it's a bounce and ignore
-    if (interrupt_time - last_interrupt_time > 200)
-    {
-      Serial.println("Print button pressed"); //***diagnostic*** to check that esp32 is ack the print button
-      changePrintStatus(true);
-    }
-    last_interrupt_time = interrupt_time;
-    portENTER_CRITICAL(&mux);
-    isPrintButtonPressed = false;
-    portEXIT_CRITICAL(&mux);
-  }
+  // if (isPrintButtonPressed)
+  // {
+  //   // insert code here to execute when cs19 print button is pressed
+  //   //  NOTE this routine will be called for every character coming in off of serial port.
+  //   //  need code eliminate duplicates
+  //   static unsigned long last_interrupt_time = 0;
+  //   unsigned long interrupt_time = millis();
+  //   // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  //   if (interrupt_time - last_interrupt_time > 200)
+  //   {
+  //     Serial.println("Print button pressed"); //***diagnostic*** to check that esp32 is ack the print button
+  //     changePrintStatus(true);
+  //   }
+  //   last_interrupt_time = interrupt_time;
+  //   portENTER_CRITICAL(&mux);
+  //   isPrintButtonPressed = false;
+  //   portEXIT_CRITICAL(&mux);
+  // }
   static int rx2_pointer;       // pointer for rs 232 port 2 rx string
   bool process_buffer_flag = 0; // flag to signal to process rx2 string
   bool lock_flag = 0;           // flag for lock condition
@@ -221,10 +221,12 @@ void Scale::readScale()
       rx2_buffer[0] = 0x02; // set first character to 0x02
       rx2_pointer = 0;      // reset the pointer
       decimalCounter = 0;
-      Serial.println("02 or 0a"); //***diagnostic***
+      Serial.println("0x02 or 0x0a was detected in RS232 Stream.\n++ Reset Decimal Counter to 0\n++ Reset rx2_pointer to 0\n++ Set rx2_buffer[0] to 0x02"); //***diagnostic***
       break;
     case 0x2E:
       decimalCounter++;
+      Serial.print("0x2e Decimal detected\n++ Increment decimalCounter\n++ decimalCounter == ");
+      Serial.println(decimalCounter);
       break;
     case 'H':        // if there is an 'H' in the string then set flag to turn on lock led
       lock_flag = 1; // set flag so lock light will come on when processing string
@@ -262,8 +264,8 @@ void Scale::readScale()
       break;
     case 0x0D:
       //     rx2_buffer[rx2_pointer++] = 0x0A;                   // Add a carriage return to end of string to allow compatibility with FD9 Flip Digit signs.
-      Serial.println("end of string"); //***diagnostic***
-      process_buffer_flag = 1;         // set flag so code will process buffer
+      Serial.println("0x0D detected.\n++ End of string\n++ Process Buffer now"); //***diagnostic***
+      process_buffer_flag = 1;                                                   // set flag so code will process buffer
 
       break;
     default:
@@ -454,20 +456,20 @@ void Scale::checkPref()
 
   // Lock "odometer" counter
   // check if locked status changed
-  if (isLocked != lastLockedStatus)
-  {
-    // if it did and the scale is locked increment locked counter by 1
-    if (isLocked == true)
-    {
-      lockedCounter++;
-      updateLastLock(weight);
-      isNewLock = true;
-      Serial.println("Total number of Locks: " + String(lockedCounter));
-      preferences.putUInt("lockedCounter", lockedCounter);
-    }
-    // regardless change lastLockedStatus to match current isLocked
-    lastLockedStatus = isLocked;
-  }
+  // if (isLocked != lastLockedStatus)
+  // {
+  //   // if it did and the scale is locked increment locked counter by 1
+  //   if (isLocked == true)
+  //   {
+  //     lockedCounter++;
+  //     updateLastLock(weight);
+  //     isNewLock = true;
+  //     Serial.println("Total number of Locks: " + String(lockedCounter));
+  //     preferences.putUInt("lockedCounter", lockedCounter);
+  //   }
+  //   // regardless change lastLockedStatus to match current isLocked
+  //   lastLockedStatus = isLocked;
+  // }
   preferences.end();
 }
 
@@ -641,10 +643,10 @@ String Scale::getLast5()
   return last5;
 }
 
-String Scale::getLockOdo()
-{
-  return String(lockedCounter);
-}
+// String Scale::getLockOdo()
+// {
+//   return String(lockedCounter);
+// }
 
 String Scale::getLb()
 {
@@ -790,8 +792,8 @@ String Scale::getJSON()
 
   doc["weight"] = getWeight();
   doc["units"] = getUnits();
-  doc["locked"] = getLockStatus();
-  doc["lockedodo"] = lockedCounter;
+  // doc["locked"] = getLockStatus();
+  // doc["lockedodo"] = lockedCounter;
 
   JsonArray lastLocked = doc.createNestedArray("lastLocked");
   lastLocked.add(getLastLocked());
