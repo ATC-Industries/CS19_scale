@@ -21,8 +21,8 @@ struct Version
 } VERSION;
 
 // A Scale object instance on Pin 25 and 27
-// Scale scale(25, 27);
-Scale scale(21, 19); // MODEL357
+Scale scale(25, 27);
+// Scale scale(21, 19); // MODEL357
 // unsigned long timer = millis();  //initial start time
 
 String getVersion();
