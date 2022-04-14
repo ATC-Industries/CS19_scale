@@ -395,6 +395,52 @@ void Scale::readScale()
     decimalCounter = 0;
     clear_buffer(); // clear the rs232 buffer
   }
+
+  // READ XBEE and check if any commands are sent
+  if (Serial1.available())
+  {
+    String response = Serial1.readStringUntil('\x03');
+    Serial.println(response);
+    response.trim();
+
+    // verify the value exists. (not 0 in length)
+    if (response.length() > 0)
+    {
+
+      for (int i = 0; i < response.length(); i++)
+      {
+      }
+      // Zero button pressed
+      if (response.indexOf("Z") != -1 || response.indexOf("z") != -1)
+      {
+        Serial.println("Zero Pressed");
+        zeroBtn();
+      }
+      // Tare button pressed
+      else if (response.indexOf("t") != -1 || response.indexOf("T") != -1)
+      {
+        Serial.println("tare Pressed");
+        tareBtn();
+      }
+      // Units button pressed
+      else if (response.indexOf("c") != -1 || response.indexOf("C") != -1)
+      {
+        Serial.println("Units Pressed");
+        unitsBtn();
+      }
+      // Net/Gross button pressed
+      else if (response.indexOf("n") != -1 || response.indexOf("N") != -1)
+      {
+        Serial.println("Net Pressed");
+        grossMode();
+      }
+      else if (response.indexOf("g") != -1 || response.indexOf("G") != -1)
+      {
+        Serial.println("Gross Pressed");
+        netMode();
+      }
+    }
+  }
 }
 
 void Scale::checkPref()
