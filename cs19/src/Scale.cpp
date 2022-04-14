@@ -98,7 +98,7 @@ void Scale::begin()
   delay(1000);
   Serial1.print("+++");
   Serial.println("\n+++ Sent");
-  delay(1500);
+  delay(500);
   if (Serial1.available())
   {
     String response = Serial1.readStringUntil('\n');
@@ -148,7 +148,7 @@ void Scale::begin()
       x = x - 1;
     }
   }
-  readScale();
+  // readScale();
   int timeoutCounter = 0;
 
   // while(units == NOTUSED){
