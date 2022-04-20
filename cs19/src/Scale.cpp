@@ -306,10 +306,14 @@ void Scale::readScale()
       ledOff(lockLedRed); // turn off lock light
       isLocked = false;
     }
-    char legacyRemWeight[30] = "\x02 ";
+    // char legacyRemWeight[30] = "\x02 ";
+    char legacyRemWeight[14];
+    memset(legacyRemWeight, 0, sizeof(legacyRemWeight));
     // strncpy(legacyRemWeight,"\x02 ",3);
 
-    strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);
+    // strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);
+    strncpy(legacyRemWeight, rx2_buffer + 1, 14);
+
     // legacyRemWeight[13] = 0x0A;
     // Serial.println(legacyRemWeight);
     if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O')
@@ -317,7 +321,55 @@ void Scale::readScale()
     }
     else
     {
-      Serial1.print(legacyRemWeight);
+      char temp[14];
+      memset(temp, 0, sizeof(temp));
+      temp[0] = legacyRemWeight[13];
+      temp[1] = ' ';
+      temp[2] = legacyRemWeight[0];
+      temp[3] = legacyRemWeight[1];
+      temp[4] = legacyRemWeight[2];
+      temp[5] = legacyRemWeight[3];
+      temp[6] = legacyRemWeight[4];
+      temp[7] = legacyRemWeight[5];
+      temp[8] = legacyRemWeight[6];
+      temp[9] = legacyRemWeight[7];
+      temp[10] = legacyRemWeight[8];
+      temp[11] = legacyRemWeight[9];
+      temp[12] = legacyRemWeight[10];
+      temp[13] = legacyRemWeight[11];
+
+      // Serial.print("0: ");
+      // Serial.println(legacyRemWeight[0], HEX);
+      // Serial.print("1: ");
+      // Serial.println(legacyRemWeight[1], HEX);
+      // Serial.print("2: ");
+      // Serial.println(legacyRemWeight[2], HEX);
+      // Serial.print("3: ");
+      // Serial.println(legacyRemWeight[3], HEX);
+      // Serial.print("4: ");
+      // Serial.println(legacyRemWeight[4], HEX);
+      // Serial.print("5: ");
+      // Serial.println(legacyRemWeight[5], HEX);
+      // Serial.print("6: ");
+      // Serial.println(legacyRemWeight[6], HEX);
+      // Serial.print("7: ");
+      // Serial.println(legacyRemWeight[7], HEX);
+      // Serial.print("8: ");
+      // Serial.println(legacyRemWeight[8], HEX);
+      // Serial.print("9: ");
+      // Serial.println(legacyRemWeight[9], HEX);
+      // Serial.print("10: ");
+      // Serial.println(legacyRemWeight[10], HEX);
+      // Serial.print("11: ");
+      // Serial.println(legacyRemWeight[11], HEX);
+      // Serial.print("12: ");
+      // Serial.println(legacyRemWeight[12], HEX);
+      // Serial.print("13: ");
+      // Serial.println(legacyRemWeight[13], HEX);
+
+      // Serial.println(legacyRemWeight);
+      // Serial1.write("BREAK");
+      Serial1.write(temp);
     }
     legRemWeigh = legacyRemWeight;
     // output weight string

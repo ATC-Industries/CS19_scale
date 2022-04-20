@@ -54,6 +54,8 @@ void setup()
   Serial.println("Booting Up...");
   Serial.print("Software Version: ");
   Serial.println(getVersion());
+  Serial.println("Custom Software for Jeff at BassChamps");
+  Serial.println("Removes 0x0A being sent to xBee Radio");
   scale.begin();
 
   // Configures static IP address
