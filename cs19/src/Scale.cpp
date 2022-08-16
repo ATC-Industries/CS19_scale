@@ -95,7 +95,7 @@ void Scale::begin()
   // RS232 input from CS19
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
-  delay(1000);
+  delay(500);
   Serial1.print("+++");
   Serial.println("\n+++ Sent");
   delay(1500);
