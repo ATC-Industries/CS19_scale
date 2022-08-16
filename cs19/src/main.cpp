@@ -276,7 +276,6 @@ String processStringForRemote(String weight, String oz)
         {
           numDec = s.length() - i + 1;
         }
-        if (s[])
       }
     }
 
@@ -288,11 +287,17 @@ String processStringForRemote(String weight, String oz)
         {              // check if value is less than .01
           s = " 0.00"; //  if it is just display zeros
         }
+        else {
+          s = " " + s;
+        }
       }
       else if (numDec == 1) {
-        if (s.toFloat() <= 0)
+        if (s.toFloat() <= 0.0)
         {              // check if value is less than 0
           s = "  0.0"; //  if it is just display zeros
+        }
+                else {
+          s = "  " + s;
         }
       }
     }
