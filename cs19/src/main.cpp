@@ -258,6 +258,7 @@ String processStringForRemote(String weight, String oz)
   {
     s = weight; // must be in Lb mode
     int decimalCounter = 0;
+    int numDec = 0;
     s.replace(" ", ""); // delete all the spaces
     // loop through weight to see if there are no decimals
     for (int i = 0; i < s.length(); i++)
@@ -267,11 +268,32 @@ String processStringForRemote(String weight, String oz)
         decimalCounter++;
       }
     }
+    // check if there is only one decimal then loop through to count how many decimal places there are
+    if(decimalCounter == 1) {
+      for (int i = 0; i < s.length(); i++)
+      {
+        if (s[i] == '.')
+        {
+          numDec = s.length() - i + 1;
+        }
+        if (s[])
+      }
+    }
+
+
     if (decimalCounter > 0)
     {
-      if (s.toFloat() < 0.1)
-      {              // check if value is less than .01
-        s = " 0.00"; //  if it is just display zeros
+      if (numDec == 2) {
+        if (s.toFloat() < 0.10)
+        {              // check if value is less than .01
+          s = " 0.00"; //  if it is just display zeros
+        }
+      }
+      else if (numDec == 1) {
+        if (s.toFloat() <= 0)
+        {              // check if value is less than 0
+          s = "  0.0"; //  if it is just display zeros
+        }
       }
     }
     else

@@ -95,15 +95,17 @@ void Scale::begin()
   // RS232 input from CS19
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
 
-  delay(1000);
+  delay(500);
   Serial1.print("+++");
   Serial.println("\n+++ Sent");
   delay(1500);
   if (Serial1.available())
   {
+    // delay(500);
     String response = Serial1.readStringUntil('\n');
     Serial.println(response);
     response.trim();
+    // delay(500);
     if (response.equals("OK"))
     {
       Serial.println("xBee Radio Found");
@@ -121,7 +123,7 @@ void Scale::begin()
     }
     else
     {
-      Serial.println("No Legacy Board Found");
+      Serial.println("Serial 1 Found\nNo Legacy Board Found");
       // Blink LOCKED LED at startup
       int x = 8;
       while (x != 0)
@@ -136,7 +138,7 @@ void Scale::begin()
   }
   else
   {
-    Serial.println("No Legacy Board Found");
+    Serial.println("Serial 1 Not Found\nNo Legacy Board Found");
     // Blink LOCKED LED at startup
     int x = 8;
     while (x != 0)
@@ -148,7 +150,7 @@ void Scale::begin()
       x = x - 1;
     }
   }
-  readScale();
+  // readScale();
   int timeoutCounter = 0;
 
   // while(units == NOTUSED){
