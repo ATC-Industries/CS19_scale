@@ -285,19 +285,19 @@ String processStringForRemote(String weight, String oz)
       if (numDec == 2) {
         if (s.toFloat() < 0.10)
         {              // check if value is less than .01
-          s = " 0.00"; //  if it is just display zeros
+          s = 0x20 + "0.00"; //  if it is just display zeros
         }
         else {
-          s = " " + s;
+          s = 0x20 + s;
         }
       }
       else if (numDec == 1) {
         if (s.toFloat() <= 0.0)
         {              // check if value is less than 0
-          s = "  0.0"; //  if it is just display zeros
+          s = 0x20 + 0x20 + "0.0"; //  if it is just display zeros
         }
                 else {
-          s = "  " + s;
+          s = 0x20 + 0x20 + s;
         }
       }
     }
