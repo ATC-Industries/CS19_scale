@@ -16,7 +16,7 @@ struct Version
 {
   int major = 1;
   int minor = 2;
-  int patch = 1;
+  int patch = 2;
 } VERSION;
 
 // A Scale object instance on Pin 25 and 27
@@ -288,7 +288,7 @@ String processStringForRemote(String weight, String oz)
           s = " 0.00"; //  if it is just display zeros
         }
         else {
-          s = " " + s;
+          s = s;
         }
       }
       else if (numDec == 1) {
@@ -298,10 +298,10 @@ String processStringForRemote(String weight, String oz)
           s = "  0.0"; //  if it is just display zeros
         }
         else if (stringToWeight < 10) {
-          s = "  " + s;
+          s = s;
         } 
         else if (stringToWeight < 100) {
-          s = " " + s;
+          s = s;
         }
         else {
           s = s;
