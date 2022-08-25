@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2]
+
+### Fixed
+
+- fixed bug when cs19 is in .00 lbs mode the decimal shift on remote displays happens at 9.99lb instead of 99.99 pounds.
+
 ## [1.2.1]
 
 ### Fixed
