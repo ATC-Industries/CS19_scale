@@ -358,7 +358,7 @@ void Scale::readScale()
     //if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O' || realWeight < 0.1)
     if (atof(legacyRemWeight) < 0.1)
     {
-      Serial.println("legacyRemWeight is less than < 0.1 LINE 361")
+      Serial.println("legacyRemWeight is less than < 0.1 LINE 361");
     }
     else
     {
