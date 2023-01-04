@@ -16,7 +16,7 @@ struct Version
 {
   int major = 1;
   int minor = 2;
-  int patch = 0;
+  int patch = 1;
 } VERSION;
 
 // A Scale object instance on Pin 25 and 27

@@ -316,7 +316,12 @@ void Scale::readScale()
 
     // legacyRemWeight[13] = 0x0A;
     // Serial.println(legacyRemWeight);
-    if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O')
+    // Check if weight is less than .1  and if it is then don't send to legacy xBee
+    float floatArray[14];
+      for(i=0; i<14; ++i) {
+        floatArray[i] = (float) legacyRemWeight[i];
+      }
+    if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O' || floatArray < 0.1)
     {
     }
     else
