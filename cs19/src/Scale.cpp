@@ -317,11 +317,45 @@ void Scale::readScale()
     // legacyRemWeight[13] = 0x0A;
     // Serial.println(legacyRemWeight);
     // Check if weight is less than .1  and if it is then don't send to legacy xBee
-    float floatArray[14];
-      for(i=0; i<14; ++i) {
-        floatArray[i] = (float) legacyRemWeight[i];
+    // Declare a float to build
+    float realWeight = 0.0;
+    // find the decimal
+    int decimalPointer;
+    for(int i = 0; i < 14; i++) {
+      if(legacyRemWeight[i] == '.'){
+        decimalPointer = i;
+        i = 14;
       }
-    if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O' || floatArray < 0.1)
+    }
+    // check if previous positions are digits (whole numbers)
+    // First check the 1s
+    if(isdigit(legacyRemWeight[decimalPointer - 1])) {
+      realWeight = realWeight + (legacyRemWeight[decimalPointer - 1] * 1);
+      // Next check the 10s
+      if(isdigit(legacyRemWeight[decimalPointer - 2])) {
+        realWeight = realWeight + (legacyRemWeight[decimalPointer - 2] * 10);
+        // Finaly check the 100s
+        if(isdigit(legacyRemWeight[decimalPointer - 3])) {
+          realWeight = realWeight + (legacyRemWeight[decimalPointer - 3] * 100);
+        }
+      }
+    }
+    // check if After positions are digits (fractional numbers)
+    // First check the .1s
+    if(isdigit(legacyRemWeight[decimalPointer + 1])) {
+      realWeight = realWeight + (legacyRemWeight[decimalPointer + 1] * .1);
+      // Next check the .01s
+      if(isdigit(legacyRemWeight[decimalPointer + 2])) {
+        realWeight = realWeight + (legacyRemWeight[decimalPointer + 2] * .01);
+        // Finaly check the .001s
+        if(isdigit(legacyRemWeight[decimalPointer + 3])) {
+          realWeight = realWeight + (legacyRemWeight[decimalPointer + 3] * .001);
+        }
+      }
+    }
+
+
+    if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O' || realWeight < 0.1)
     {
     }
     else
