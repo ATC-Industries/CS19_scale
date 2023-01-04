@@ -320,7 +320,7 @@ void Scale::readScale()
     // Declare a float to build
     float realWeight = 0.0;
     // find the decimal
-    int decimalPointer;
+    int decimalPointer = 0;
     for(int i = 0; i < 14; i++) {
       if(legacyRemWeight[i] == '.'){
         decimalPointer = i;
