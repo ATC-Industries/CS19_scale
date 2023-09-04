@@ -311,9 +311,11 @@ void Scale::readScale()
 
     strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);
     // legacyRemWeight[13] = 0x0A;
-    // Serial.println(legacyRemWeight);
+    Serial.println(legacyRemWeight);
     if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O')
     {
+      // TODO check this.  if it does not work then we need to know what the legacyRemWeight string looks like and print it here
+      Serial1.print(" 0.00");
     }
     else
     {
