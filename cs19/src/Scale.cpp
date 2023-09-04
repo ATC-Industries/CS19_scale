@@ -311,11 +311,17 @@ void Scale::readScale()
 
     strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);
     // legacyRemWeight[13] = 0x0A;
-    Serial.println(legacyRemWeight);
+
+    Serial.println("Raw rx2_buffer: " + String(rx2_buffer));
+    Serial.println("legacyRemWeight: " + String(legacyRemWeight));
+    //  TODO Also determin what this is actuallt doing. I don't know what the legacyRemWeight string looks like and I don't know why this if block was empty.
+    Serial.println("Character at index 2: " + String(legacyRemWeight[2]));
+    Serial.println("Character at index 12: " + String(legacyRemWeight[12]));
     if (legacyRemWeight[2] == '-' || legacyRemWeight[12] == 'O')
     {
       // TODO check this.  if it does not work then we need to know what the legacyRemWeight string looks like and print it here
       Serial1.print(" 0.00");
+      Serial.println("Sending 0.00 to Serial1");
     }
     else
     {
