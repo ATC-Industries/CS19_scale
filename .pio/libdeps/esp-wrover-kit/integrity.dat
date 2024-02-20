@@ -1,0 +1,6 @@
+me-no-dev/AsyncTCP @ 1.1.1
+HTTPClient @ ^1.2
+ESP Async WebServer @ 1.2.3
+WiFi @ ^1.0
+ArduinoJson
+WiFiClientSecure @ ^1.0
