@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - Unreleased
 
+### Added
+
+- Fixed issue where scale sends negative values to legacy remote displays
+- Implemented dynamic zero value formatting based on scale's decimal setting
+
 ### In Progress
 
-- Fixing issue where scale does not send 0.00 to legacy remote displays on negative weight
+- Further testing and validation of the new zero-handling logic
 
 ### Note
 
