@@ -7,18 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - Unreleased
 
-### Added
-
-- Fixed issue where scale sends negative values to legacy remote displays
-- Implemented dynamic zero value formatting based on scale's decimal setting
-- Added detailed debugging for weight processing and transmission to legacy remotes
-- Improved code structure and comments in weight processing section
-
 ### Fixed
 
-- Corrected decimal places calculation to ignore non-numeric characters
-- Ensured consistent appending of end-of-transmission characters (0D 0A 02) to all weight outputs
-- Fixed formatting of zero and negative weight values to match scale's decimal setting
+- Corrected handling of zero and negative weight values for legacy remote displays
+- Preserved original output format and status indicators for positive weights
+- Ensured consistent appending of end-of-transmission characters (0D 0A 02 0D 0A) to all weight outputs
 
 ### In Progress
 

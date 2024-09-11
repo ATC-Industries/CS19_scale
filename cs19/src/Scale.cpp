@@ -288,44 +288,40 @@ void Scale::readScale() {
       ledOff(lockLedRed);  // turn off lock light
       isLocked = false;
     }
-    // Prepare legacy remote weight string
-    char legacyRemWeight[30] = "\x02 ";                // Start with STX and a space
-    strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);  // Copy weight from rx2_buffer
+    char legacyRemWeight[30] = "\x02 ";
+    strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);
 
-    // Debug: Print raw data
+    // Debug output
     Serial.println("Raw rx2_buffer: " + String(rx2_buffer));
     Serial.println("legacyRemWeight: " + String(legacyRemWeight));
 
-    // Extract weight value and determine decimal places
-    float weightValue = atof(legacyRemWeight + 2);  // Convert to float, skipping STX and space
+    float weightValue = atof(legacyRemWeight + 2);
     int decimalPlaces = countDecimalPlaces(legacyRemWeight + 2);
 
-    // Debug: Print extracted information
     Serial.println("Extracted weight value: " + String(weightValue));
     Serial.println("Decimal places: " + String(decimalPlaces));
 
-    // Determine what to send to the legacy remote
     char outputWeight[30];
-    if (weightValue <= 0 || legacyRemWeight[12] == 'O') {  // Zero, negative, or overflow
-      snprintf(outputWeight, sizeof(outputWeight), "\x02 %.*f", decimalPlaces, 0.0);
-      Serial.println("Sending zero weight to Serial1");
+    if (weightValue <= 0 || legacyRemWeight[12] == 'O') {
+      // Format zero weight to match positive weight format, but use zeros
+      snprintf(outputWeight, sizeof(outputWeight), "\x02     %.*fLG%c", decimalPlaces, 0.0,
+               legacyRemWeight[12] == 'O' ? 'O' : 'M');
+      Serial.println("Sending zero/negative weight to Serial1");
     } else {
-      strncpy(outputWeight, legacyRemWeight, sizeof(outputWeight) - 3);
+      // For positive weights, use the original string
+      strncpy(outputWeight, legacyRemWeight, sizeof(outputWeight) - 5);
       Serial.println("Sending positive weight to Serial1");
     }
 
-    // Debug: Print extracted information
-    Serial.println("Time since last update: " + String(currentTime - lastUpdateTime) + " ms");
-    lastUpdateTime = currentTime;
-
-    // Append the missing characters
+    // Append the ending characters
     size_t len = strlen(outputWeight);
     outputWeight[len] = 0x0D;
     outputWeight[len + 1] = 0x0A;
     outputWeight[len + 2] = 0x02;
-    outputWeight[len + 3] = '\0';
+    outputWeight[len + 3] = 0x0D;
+    outputWeight[len + 4] = 0x0A;
+    outputWeight[len + 5] = '\0';
 
-    // Send weight to legacy remote and store for later use
     Serial1.print(outputWeight);
     legRemWeigh = outputWeight;
 
