@@ -165,11 +165,14 @@ void IRAM_ATTR Scale::print_pb_isr() {  // This is an  isr that is called when C
   portEXIT_CRITICAL_ISR(&mux);
 }
 
-// Function to count decimal places
 int countDecimalPlaces(const char* str) {
   const char* dot = strchr(str, '.');
-  if (dot == NULL) return 0;
-  return strlen(dot + 1);
+  if (!dot) return 0;
+  int count = 0;
+  for (const char* p = dot + 1; *p && isdigit(*p); ++p) {
+    ++count;
+  }
+  return count;
 }
 
 /**
@@ -304,33 +307,38 @@ void Scale::readScale() {
     // Determine what to send to the legacy remote
     char outputWeight[30];
     if (weightValue <= 0 || legacyRemWeight[12] == 'O') {  // Zero, negative, or overflow
-      if (decimalPlaces == 0)
-        snprintf(outputWeight, sizeof(outputWeight), "\x02 0");
-      else
-        snprintf(outputWeight, sizeof(outputWeight), "\x02 %.*f", decimalPlaces, 0.0);
-
+      snprintf(outputWeight, sizeof(outputWeight), "\x02 %.*f", decimalPlaces, 0.0);
       Serial.println("Sending zero weight to Serial1");
     } else {
-      strncpy(outputWeight, legacyRemWeight, sizeof(outputWeight));
+      strncpy(outputWeight, legacyRemWeight, sizeof(outputWeight) - 3);
       Serial.println("Sending positive weight to Serial1");
     }
+
     // Debug: Print extracted information
     Serial.println("Time since last update: " + String(currentTime - lastUpdateTime) + " ms");
     lastUpdateTime = currentTime;
+
+    // Append the missing characters
+    size_t len = strlen(outputWeight);
+    outputWeight[len] = 0x0D;
+    outputWeight[len + 1] = 0x0A;
+    outputWeight[len + 2] = 0x02;
+    outputWeight[len + 3] = '\0';
 
     // Send weight to legacy remote and store for later use
     Serial1.print(outputWeight);
     legRemWeigh = outputWeight;
 
-    // Debug: Print raw bytes sent to Serial1
-    Serial.println("Raw bytes sent to Serial1:");
-    for (int i = 0; outputWeight[i] != '\0'; i++) {
-      Serial.print(" " + String(outputWeight[i], HEX));
-    }
-    Serial.println();
-
     // Debug: Print final output
     Serial.println("Final output sent to legacy remote: " + String(outputWeight));
+    Serial.println("Time since last update: " + String(millis() - lastUpdateTime) + " ms");
+    lastUpdateTime = millis();
+
+    Serial.print("Raw bytes sent to Serial1:");
+    for (int i = 0; outputWeight[i] != '\0'; i++) {
+      Serial.print(" " + String((uint8_t)outputWeight[i], HEX));
+    }
+    Serial.println();
 
     // output weight string
     if (units == LB) {

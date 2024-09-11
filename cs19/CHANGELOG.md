@@ -14,10 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added detailed debugging for weight processing and transmission to legacy remotes
 - Improved code structure and comments in weight processing section
 
+### Fixed
+
+- Corrected decimal places calculation to ignore non-numeric characters
+- Ensured consistent appending of end-of-transmission characters (0D 0A 02) to all weight outputs
+- Fixed formatting of zero and negative weight values to match scale's decimal setting
+
 ### In Progress
 
 - Further testing and validation of the new zero-handling logic
-- Investigating potential timing issues with weight updates at or near zero
 
 ### Note
 
