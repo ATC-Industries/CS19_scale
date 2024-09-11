@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed issue where scale sends negative values to legacy remote displays
 - Implemented dynamic zero value formatting based on scale's decimal setting
+- Added detailed debugging for weight processing and transmission to legacy remotes
+- Improved code structure and comments in weight processing section
 
 ### In Progress
 
 - Further testing and validation of the new zero-handling logic
+- Investigating potential timing issues with weight updates at or near zero
 
 ### Note
 

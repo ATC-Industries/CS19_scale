@@ -177,6 +177,9 @@ int countDecimalPlaces(const char* str) {
  *
  */
 void Scale::readScale() {
+  static unsigned long lastUpdateTime = 0;
+  unsigned long currentTime = millis();
+
   if (isPrintButtonPressed) {
     // insert code here to execute when cs19 print button is pressed
     //  NOTE this routine will be called for every character coming in off of serial port.
@@ -239,10 +242,8 @@ void Scale::readScale() {
         status = OVERUNDER;
         break;
       case 0x0D:
-        //     rx2_buffer[rx2_pointer++] = 0x0A;                   // Add a carriage return to end of string to allow
-        //     compatibility with FD9 Flip Digit signs.
         process_buffer_flag = 1;  // set flag so code will process buffer
-
+        Serial.println("Complete weight reading received at " + String(millis()) + "ms. Processing buffer.");
         break;
       default:
         break;
@@ -284,37 +285,53 @@ void Scale::readScale() {
       ledOff(lockLedRed);  // turn off lock light
       isLocked = false;
     }
-    char legacyRemWeight[30] = "\x02 ";
-    // strncpy(legacyRemWeight,"\x02 ",3);
+    // Prepare legacy remote weight string
+    char legacyRemWeight[30] = "\x02 ";                // Start with STX and a space
+    strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);  // Copy weight from rx2_buffer
 
-    strncpy(legacyRemWeight + 2, rx2_buffer + 1, 14);
-    // legacyRemWeight[13] = 0x0A;
-
+    // Debug: Print raw data
     Serial.println("Raw rx2_buffer: " + String(rx2_buffer));
     Serial.println("legacyRemWeight: " + String(legacyRemWeight));
-    //  TODO Also determin what this is actuallt doing. I don't know what the legacyRemWeight string looks like and I
-    //  don't know why this if block was empty.
-    Serial.println("Character at index 2: " + String(legacyRemWeight[2]));
-    Serial.println("Character at index 12: " + String(legacyRemWeight[12]));
 
-    // Convert legacyRemWeight to a float for comparison
-    float weightValue = atof(legacyRemWeight + 2);  // Skip the first two characters (usually "\x02 ")
+    // Extract weight value and determine decimal places
+    float weightValue = atof(legacyRemWeight + 2);  // Convert to float, skipping STX and space
     int decimalPlaces = countDecimalPlaces(legacyRemWeight + 2);
 
-    if (weightValue <= 0 || legacyRemWeight[12] == 'O') {
-      char zeroWeight[30];
-      if (decimalPlaces == 0)
-        snprintf(zeroWeight, sizeof(zeroWeight), "\x02 0");
-      else
-        snprintf(zeroWeight, sizeof(zeroWeight), "\x02 %.*f", decimalPlaces, 0.0);
+    // Debug: Print extracted information
+    Serial.println("Extracted weight value: " + String(weightValue));
+    Serial.println("Decimal places: " + String(decimalPlaces));
 
-      Serial1.print(zeroWeight);
-      Serial.print("Sending zero weight to Serial1: ");
-      Serial.println(zeroWeight);
+    // Determine what to send to the legacy remote
+    char outputWeight[30];
+    if (weightValue <= 0 || legacyRemWeight[12] == 'O') {  // Zero, negative, or overflow
+      if (decimalPlaces == 0)
+        snprintf(outputWeight, sizeof(outputWeight), "\x02 0");
+      else
+        snprintf(outputWeight, sizeof(outputWeight), "\x02 %.*f", decimalPlaces, 0.0);
+
+      Serial.println("Sending zero weight to Serial1");
     } else {
-      Serial1.print(legacyRemWeight);
+      strncpy(outputWeight, legacyRemWeight, sizeof(outputWeight));
+      Serial.println("Sending positive weight to Serial1");
     }
-    legRemWeigh = legacyRemWeight;
+    // Debug: Print extracted information
+    Serial.println("Time since last update: " + String(currentTime - lastUpdateTime) + " ms");
+    lastUpdateTime = currentTime;
+
+    // Send weight to legacy remote and store for later use
+    Serial1.print(outputWeight);
+    legRemWeigh = outputWeight;
+
+    // Debug: Print raw bytes sent to Serial1
+    Serial.println("Raw bytes sent to Serial1:");
+    for (int i = 0; outputWeight[i] != '\0'; i++) {
+      Serial.print(" " + String(outputWeight[i], HEX));
+    }
+    Serial.println();
+
+    // Debug: Print final output
+    Serial.println("Final output sent to legacy remote: " + String(outputWeight));
+
     // output weight string
     if (units == LB) {
       // Clear weight Char array
