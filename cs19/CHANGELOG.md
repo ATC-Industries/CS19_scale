@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - Unreleased
+## [1.5.0] - Unreleased 09/02/2026 NEEDS SERIOUS TESTING
 
 ### Added
 
@@ -30,6 +30,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - Legacy API endpoints remain available for compatibility but are not recommended for new integrations.
+
+### To Test
+
+| Test              | REST              | WebSocket         |
+| ----------------- | ----------------- | ----------------- |
+| Zero/ready        | verify            | verify event      |
+| Increasing weight | verify            | verify cadence    |
+| Motion            | verify            | verify transition |
+| Locked weight     | verify            | verify transition |
+| Remove weight     | verify            | verify transition |
+| lb mode           | verify numeric    | verify            |
+| kg mode           | verify numeric    | verify            |
+| lb/oz mode        | verify conversion | verify            |
+| Change units      | verify            | verify event      |
+| Gross/net         | verify            | verify event      |
+| 5+ lock events    | verify history    | verify            |
+| Negative weight   | verify            | verify            |
+| Over/under        | verify            | verify            |
+
 
 ## [1.4.0]
 
