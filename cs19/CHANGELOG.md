@@ -5,7 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - Unreleased
+## [1.5.0] - Unreleased
+
+### Added
+
+- New versioned API endpoints for third-party integrations.
+- Device and firmware information in API responses.
+- Improved structured scale data intended for software integrations.
+
+### In Progress
+
+- Evaluate WebSocket support for live scale updates.
+- Define normalized weight and status response formats.
+- Maintain backward compatibility with `/v1/scale/data`.
+
+### Deprecated
+
+- Legacy API endpoints remain available for compatibility but are not recommended for new integrations.
+
+## [1.4.0]
 
 ### Fixed
 
