@@ -60,7 +60,7 @@ Example `GET /api/v1/scale` response:
 }
 ```
 
-`/api/v1/scale` returns normalized numeric weight data for software use. In pounds/ounces mode, the numeric `weight` is normalized to pounds and `unit_mode` is reported as `lb_oz`.
+`/api/v1/scale` returns normalized numeric weight data for software use. In pounds/ounces mode, the numeric `weight` is calculated directly from the internal pounds and ounces components as `pounds + ounces / 16`, preserving the sign if either component is negative, and `unit_mode` is reported as `lb_oz`.
 
 ### Legacy Compatibility API
 

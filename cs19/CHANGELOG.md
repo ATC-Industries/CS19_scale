@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Firmware version now reports `1.5.0`.
 - `/v1/scale/data` and `/v1/getJSON` remain unchanged for compatibility while `/api/v1/...` is the preferred namespace for new integrations.
 - Documentation now distinguishes versioned API routes, legacy compatibility routes, and implemented live-update behavior.
+- LB/OZ normalization for `/api/v1/scale` and live updates now comes directly from internal pounds and ounces values instead of reparsing display strings.
+- Invalid numeric strings in the new API now emit `null` instead of silently becoming `0.0`.
+- WebSocket change detection now uses a small state hash instead of concatenating heap-allocated `String` keys.
 
 ### Deprecated
 

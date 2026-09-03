@@ -10,6 +10,8 @@
  */
 #include "Scale.h"
 // #include "SPIFFS.h"
+#include <ctype.h>
+#include <stdlib.h>
 
 bool Scale::isPrintPressed = false;
 bool Scale::isNewLock = false;
@@ -181,25 +183,116 @@ String Scale::normalizeWeightString(const String &value) const {
   return normalized;
 }
 
+bool Scale::parseStrictFloatString(const String &value, float &parsedWeight) const {
+  String normalized = normalizeWeightString(value);
+  if (normalized.length() == 0) {
+    return false;
+  }
+
+  char buffer[32];
+  if (normalized.length() >= sizeof(buffer)) {
+    return false;
+  }
+
+  normalized.toCharArray(buffer, sizeof(buffer));
+  char *end = nullptr;
+  parsedWeight = strtof(buffer, &end);
+  if (end == buffer) {
+    return false;
+  }
+
+  while (*end != '\0') {
+    if (!isspace(static_cast<unsigned char>(*end))) {
+      return false;
+    }
+    ++end;
+  }
+
+  return true;
+}
+
+bool Scale::parseStrictIntString(const String &value, long &parsedValue) const {
+  String normalized = normalizeWeightString(value);
+  if (normalized.length() == 0) {
+    return false;
+  }
+
+  char buffer[16];
+  if (normalized.length() >= sizeof(buffer)) {
+    return false;
+  }
+
+  normalized.toCharArray(buffer, sizeof(buffer));
+  char *end = nullptr;
+  parsedValue = strtol(buffer, &end, 10);
+  if (end == buffer) {
+    return false;
+  }
+
+  while (*end != '\0') {
+    if (!isspace(static_cast<unsigned char>(*end))) {
+      return false;
+    }
+    ++end;
+  }
+
+  return true;
+}
+
+bool Scale::getNormalizedLbOzValue(const char *poundsRaw, const char *ouncesRaw, float &parsedWeight) const {
+  long pounds = 0;
+  float ounces = 0.0f;
+  if (!parseStrictIntString(String(poundsRaw), pounds) || !parseStrictFloatString(String(ouncesRaw), ounces)) {
+    return false;
+  }
+
+  const float absPounds = pounds < 0 ? static_cast<float>(-pounds) : static_cast<float>(pounds);
+  const float absOunces = ounces < 0.0f ? -ounces : ounces;
+  parsedWeight = absPounds + (absOunces / 16.0f);
+  if (pounds < 0 || ounces < 0.0f) {
+    parsedWeight = -parsedWeight;
+  }
+
+  return true;
+}
+
+bool Scale::getCurrentNormalizedWeight(float &parsedWeight) const {
+  if (units == LBOZ) {
+    return getNormalizedLbOzValue(outLb, outOz, parsedWeight);
+  }
+
+  return parseStrictFloatString(getWeight(), parsedWeight);
+}
+
+void Scale::updateLastLockedWeight(float parsedWeight, bool isValid) {
+  for (int i = 4; i > 0; --i) {
+    lastLockedWeights[i] = lastLockedWeights[i - 1];
+    lastLockedWeightValid[i] = lastLockedWeightValid[i - 1];
+  }
+
+  lastLockedWeights[0] = parsedWeight;
+  lastLockedWeightValid[0] = isValid;
+}
+
 bool Scale::parseWeightString(const String &value, float &parsedWeight) const {
   String normalized = normalizeWeightString(value);
   if (normalized.length() == 0 || normalized == "---") {
     return false;
   }
 
-  if (normalized.indexOf("lb") != -1 && normalized.indexOf("oz") != -1) {
+  if (normalized.indexOf("lb") != -1 || normalized.indexOf("oz") != -1) {
     int lbIndex = normalized.indexOf("lb");
     int ozIndex = normalized.indexOf("oz");
+    if (lbIndex <= 0 || ozIndex <= lbIndex + 2) {
+      return false;
+    }
+
     String pounds = normalized.substring(0, lbIndex);
     String ounces = normalized.substring(lbIndex + 2, ozIndex);
-    pounds.trim();
-    ounces.trim();
-    parsedWeight = pounds.toFloat() + (ounces.toFloat() / 16.0f);
-    return true;
+    return getNormalizedLbOzValue(pounds.c_str(), ounces.c_str(), parsedWeight);
   }
 
-  parsedWeight = normalized.toFloat();
-  return true;
+  return parseStrictFloatString(normalized, parsedWeight);
 }
 
 String Scale::getApiUnits() const {
@@ -356,6 +449,8 @@ void Scale::readScale() {
     rx2_buffer[11] = 'M';
   }
   if (process_buffer_flag) {
+    float normalizedLockedWeight = 0.0f;
+    bool normalizedLockedWeightValid = false;
     if (lock_flag == 1) {
       ledOn(lockLedRed);  // turn on lock light
       isLocked = true;
@@ -454,6 +549,7 @@ void Scale::readScale() {
     } else {
       // error
     }
+    normalizedLockedWeightValid = getCurrentNormalizedWeight(normalizedLockedWeight);
     rx2_buffer[rx2_pointer] = 0x00;  // add null zero to string
 
     // Reset back to initial state
@@ -466,6 +562,7 @@ void Scale::readScale() {
       }
       lastLocked = weight;
       lockedOz = outOz;
+      updateLastLockedWeight(normalizedLockedWeight, normalizedLockedWeightValid);
     }
 
     // Serial1.println(rx2_buffer);
@@ -804,12 +901,13 @@ String Scale::getApiJSON() {
   float parsedWeight = 0.0f;
   const String currentWeight = getWeight();
 
-  doc["weight"] = parseWeightString(currentWeight, parsedWeight) ? parsedWeight : nullptr;
+  doc["weight"] = getCurrentNormalizedWeight(parsedWeight) ? parsedWeight : nullptr;
   doc["units"] = getApiUnits();
   doc["unit_mode"] = getApiUnitMode();
   doc["display_weight"] = currentWeight;
   doc["locked"] = isLocked;
   doc["lock_state"] = getApiLockState();
+  // The serial stream uses motion and over/under markers explicitly; the remaining status state is the no-motion reading.
   doc["stable"] = (status == VALID);
   doc["status"] = getApiStatus();
   doc["lock_sequence"] = lockedCounter;
@@ -822,11 +920,9 @@ String Scale::getApiJSON() {
   doc["has_signal"] = hasSignalFlag;
 
   JsonArray recentLocked = doc.createNestedArray("recent_locked_weights");
-  const String recentValues[] = {getLastLocked(), getLast2(), getLast3(), getLast4(), getLast5()};
-  for (const String &recentValue : recentValues) {
-    float parsedRecent = 0.0f;
-    if (parseWeightString(recentValue, parsedRecent)) {
-      recentLocked.add(parsedRecent);
+  for (int i = 0; i < 5; ++i) {
+    if (lastLockedWeightValid[i]) {
+      recentLocked.add(lastLockedWeights[i]);
     } else {
       recentLocked.add(nullptr);
     }
@@ -836,7 +932,44 @@ String Scale::getApiJSON() {
   return output;
 }
 
-String Scale::getApiStateKey() {
-  return getWeight() + "|" + getUnits() + "|" + getLockStatus() + "|" + getStatus() + "|" + getTareMode() + "|" +
-         String(lockedCounter) + "|" + getLastLocked() + "|" + String(hasSignalFlag ? 1 : 0);
+uint32_t Scale::getApiStateHash() const {
+  uint32_t hash = 2166136261u;
+
+  auto hashByte = [&hash](uint8_t value) {
+    hash ^= value;
+    hash *= 16777619u;
+  };
+  auto hashCString = [&hashByte](const char *value) {
+    while (*value != '\0') {
+      hashByte(static_cast<uint8_t>(*value));
+      ++value;
+    }
+    hashByte(0);
+  };
+  auto hashString = [&hashCString](const String &value) {
+    hashCString(value.c_str());
+  };
+  auto hashUInt = [&hashByte](uint32_t value) {
+    hashByte(static_cast<uint8_t>(value));
+    hashByte(static_cast<uint8_t>(value >> 8));
+    hashByte(static_cast<uint8_t>(value >> 16));
+    hashByte(static_cast<uint8_t>(value >> 24));
+  };
+
+  hashCString(weight);
+  hashCString(outLb);
+  hashCString(outOz);
+  hashString(last1);
+  hashString(last2);
+  hashString(last3);
+  hashString(last4);
+  hashString(last5);
+  hashUInt(static_cast<uint32_t>(units));
+  hashUInt(static_cast<uint32_t>(tareMode));
+  hashUInt(static_cast<uint32_t>(status));
+  hashUInt(lockedCounter);
+  hashByte(isLocked ? 1 : 0);
+  hashByte(hasSignalFlag ? 1 : 0);
+
+  return hash;
 }

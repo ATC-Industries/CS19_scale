@@ -57,11 +57,12 @@ GET /api/v1/scale
 
 - `weight` is normalized numeric data.
 - `units` is the normalized numeric unit.
-- `unit_mode` reflects the scale's active display mode. In `lb_oz` mode, `weight` is normalized to pounds.
+- `unit_mode` reflects the scale's active display mode. In `lb_oz` mode, `weight` is calculated directly from the internal pounds and ounces components as `pounds + ounces / 16`, preserving a negative sign when the existing scale data reports one.
 - `display_weight` preserves the current display-oriented formatting.
 - `locked` is a boolean lock state.
 - `lock_state` is one of `ready`, `calculating`, or `locked`.
-- `stable`, `valid`, `motion`, and `over_under` expose the current measurement state without requiring string parsing.
+- `stable` is `true` when the CS19 serial status is in its non-motion, non-over/under state, which the current firmware labels `VALID`.
+- `valid`, `motion`, and `over_under` expose the current measurement state without requiring string parsing.
 - `gross_net`, `gross`, and `net` expose the tare/gross mode.
 - `recent_locked_weights` contains the most recent locked weights as numbers where parsing is reliable, otherwise `null`.
 

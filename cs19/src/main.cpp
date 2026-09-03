@@ -265,7 +265,8 @@ void handleWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, 
 
 void publishScaleUpdates()
 {
-  static String lastStateKey;
+  static uint32_t lastStateHash = 0;
+  static bool hasLastStateHash = false;
   static unsigned long lastCleanupMs = 0;
   static unsigned long lastPublishMs = 0;
   unsigned long now = millis();
@@ -281,10 +282,11 @@ void publishScaleUpdates()
     return;
   }
 
-  String stateKey = scale.getApiStateKey();
-  if (stateKey != lastStateKey)
+  uint32_t stateHash = scale.getApiStateHash();
+  if (!hasLastStateHash || stateHash != lastStateHash)
   {
-    lastStateKey = stateKey;
+    lastStateHash = stateHash;
+    hasLastStateHash = true;
     lastPublishMs = now;
     ws.textAll(scale.getApiJSON());
   }

@@ -14,6 +14,7 @@
 #include <vector> 
 #include <Preferences.h>
 #include <ArduinoJson.h> 
+#include <stddef.h>
 
 class Scale {
     private:
@@ -53,11 +54,13 @@ class Scale {
         String last4 = "---";
         String last5 = "---";
         String lockedOz;
+        float lastLockedWeights[5] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+        bool lastLockedWeightValid[5] = {false, false, false, false, false};
         Units units; // = NOTUSED;
         Taremode tareMode = GROSS;
         Status status = VALID;
-        char outLb[2];
-        char outOz[4];
+        char outLb[3] = {0};
+        char outOz[5] = {0};
         static bool isPrintPressed;
         static bool isNewLock;
 
@@ -85,6 +88,11 @@ class Scale {
         void ledRGBStatus(bool, bool, bool);
         String normalizeWeightString(const String &value) const;
         bool parseWeightString(const String &value, float &parsedWeight) const;
+        bool parseStrictFloatString(const String &value, float &parsedWeight) const;
+        bool parseStrictIntString(const String &value, long &parsedValue) const;
+        bool getNormalizedLbOzValue(const char *poundsRaw, const char *ouncesRaw, float &parsedWeight) const;
+        bool getCurrentNormalizedWeight(float &parsedWeight) const;
+        void updateLastLockedWeight(float parsedWeight, bool isValid);
         String getApiUnits() const;
         String getApiUnitMode() const;
         String getApiLockState() const;
@@ -156,7 +164,7 @@ class Scale {
         bool isAuto;
         String getJSON();
         String getApiJSON();
-        String getApiStateKey();
+        uint32_t getApiStateHash() const;
     
 
         
