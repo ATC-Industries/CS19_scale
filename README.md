@@ -12,7 +12,9 @@ The CS19 currently:
 
 - Creates its own Wi-Fi network for local connections.
 - Provides a browser-based interface for viewing scale data.
-- Provides a JSON endpoint for software integrations.
+- Provides a legacy JSON endpoint for existing integrations.
+- Provides a versioned local API for third-party integrations.
+- Provides live scale updates over WebSocket.
 - Communicates with the scale hardware through its existing serial interface.
 - Allows phones, tablets, and computers to access scale data without requiring an internet connection.
 
@@ -22,9 +24,47 @@ The scale is currently available at:
 
 ## Local API
 
-### Scale Data
+### Versioned Integration API
 
-Current scale data can be retrieved from:
+Preferred endpoints for new integrations:
+
+`GET http://192.168.1.184/api/v1/scale`
+
+`GET http://192.168.1.184/api/v1/device`
+
+`GET http://192.168.1.184/api/v1/capabilities`
+
+`WS  http://192.168.1.184/api/v1/ws`
+
+Example `GET /api/v1/scale` response:
+
+```json
+{
+  "weight": 12.45,
+  "units": "lb",
+  "unit_mode": "lb",
+  "display_weight": "   12.45",
+  "locked": false,
+  "lock_state": "calculating",
+  "stable": false,
+  "status": "motion",
+  "lock_sequence": 151,
+  "gross_net": "gross",
+  "gross": true,
+  "net": false,
+  "valid": false,
+  "motion": true,
+  "over_under": false,
+  "has_signal": true,
+  "recent_locked_weights": [12.45, 11.92, 10.37, 9.84, 8.71]
+}
+```
+
+`/api/v1/scale` returns normalized numeric weight data for software use. In pounds/ounces mode, the numeric `weight` is normalized to pounds and `unit_mode` is reported as `lb_oz`.
+
+### Legacy Compatibility API
+
+Existing integrations should keep using:
 
 `GET http://192.168.1.184/v1/scale/data`
 
@@ -49,6 +89,8 @@ Example:
 ```
 
 Some values are currently returned in the same formatted form used by the CS19 display. Third-party applications should not assume every field is a normalized numeric value.
+
+`/v1/scale/data` is unchanged in firmware `1.5.0` and remains the compatibility endpoint for existing clients.
 
 ### Polling
 
@@ -111,54 +153,26 @@ These are being documented as ideas and areas worth investigating, not as a comm
 
 ## Improved Local API
 
-The existing API works, but a future revision could provide a cleaner and more formal interface for third-party developers.
+Firmware `1.5.0` adds a versioned `/api/v1/...` namespace for new local integrations while keeping legacy routes in place.
 
-Possible improvements include:
+Implemented in `1.5.0`:
 
-- A consistent `/api/v1/...` namespace.
-- Numeric weight values instead of display-formatted strings.
-- Clearly defined unit values.
-- Explicit scale status fields.
-- Unique scale identification.
-- Firmware version information.
-- API version information.
-- Capability reporting.
-- More consistent error responses.
-- Better integration documentation and examples.
+- `/api/v1/scale`
+- `/api/v1/device`
+- `/api/v1/capabilities`
+- `/api/v1/ws`
 
-A future response could look more like:
-
-```json
-{
-  "device": {
-    "model": "CS19",
-    "id": "CS19-XXXXXX",
-    "firmware": "1.x.x"
-  },
-  "measurement": {
-    "weight": 12.42,
-    "unit": "lb",
-    "stable": true,
-    "locked": true
-  },
-  "sequence": 152
-}
-```
-
-The exact API structure has not been decided.
+Future API work, if needed, should extend this namespace without breaking `/v1/scale/data`.
 
 ## Live Scale Data
 
-The current API is request-based, meaning applications poll the scale for updates.
+Firmware `1.5.0` adds WebSocket live updates at:
 
-A future version could potentially provide live scale updates using WebSockets, Server-Sent Events, or a similar mechanism.
+`/api/v1/ws`
 
-A possible long-term design would be:
+The WebSocket feed sends the same JSON structure used by `/api/v1/scale` when state changes, with a bounded publish interval to avoid flooding clients.
 
-- REST/JSON for current scale state and device information.
-- A live event connection for weight and lock-state changes.
-
-This could reduce unnecessary polling and make mobile and desktop integrations easier.
+Server-Sent Events are not implemented.
 
 ## Customer Wi-Fi Support
 

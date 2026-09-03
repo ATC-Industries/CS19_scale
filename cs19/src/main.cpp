@@ -15,7 +15,7 @@
 struct Version
 {
   int major = 1;
-  int minor = 4;
+  int minor = 5;
   int patch = 0;
 } VERSION;
 
@@ -24,6 +24,12 @@ Scale scale(25, 27);
 // unsigned long timer = millis();  //initial start time
 
 String getVersion();
+String getDeviceId();
+String getDeviceJSON();
+String getCapabilitiesJSON();
+void handleWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg,
+                          uint8_t *data, size_t len);
+void publishScaleUpdates();
 String processStringForRemote(String weight, String oz);
 String remoteDisplay(char *mode);
 String processor(const String &var);
@@ -35,8 +41,9 @@ String password = "987654321";
 // Port 80 where the server will be listening
 AsyncWebServer server(80);
 // A websocket input called /ws
-AsyncWebSocket ws("/ws");
+AsyncWebSocket ws("/api/v1/ws");
 AsyncEventSource events("/events");
+const char *apiVersion = "1.0";
 
 // Set your Static IP address
 IPAddress local_IP(192, 168, 1, 184);
@@ -146,6 +153,15 @@ void setup()
               request->send(200, "application/json", scale.getJSON().c_str());
               Serial.println(scale.getJSON().c_str()); });
 
+  server.on("/api/v1/scale", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(200, "application/json", scale.getApiJSON().c_str()); });
+
+  server.on("/api/v1/device", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(200, "application/json", getDeviceJSON().c_str()); });
+
+  server.on("/api/v1/capabilities", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(200, "application/json", getCapabilitiesJSON().c_str()); });
+
   server.on("/getUnits", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send_P(200, "text/plain", scale.getUnits().c_str()); });
   server.on("/isLocked", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -179,17 +195,99 @@ void setup()
   server.onNotFound([](AsyncWebServerRequest *request)
                     { request->send(404); });
 
+  ws.onEvent(handleWebSocketEvent);
+  server.addHandler(&ws);
   server.begin(); // start server
 }
 
 void loop()
 {
   scale.readScale();
+  publishScaleUpdates();
 }
 
 String getVersion()
 {
   return String(VERSION.major) + "." + String(VERSION.minor) + "." + String(VERSION.patch);
+}
+
+String getDeviceId()
+{
+  uint64_t chipId = ESP.getEfuseMac();
+  char deviceId[18];
+  snprintf(deviceId, sizeof(deviceId), "CS19-%04X%08X", (uint16_t)(chipId >> 32), (uint32_t)chipId);
+  return String(deviceId);
+}
+
+String getDeviceJSON()
+{
+  String output;
+  StaticJsonDocument<192> doc;
+  doc["model"] = "CS19";
+  doc["firmware_version"] = getVersion();
+  doc["api_version"] = apiVersion;
+  doc["device_id"] = getDeviceId();
+  serializeJson(doc, output);
+  return output;
+}
+
+String getCapabilitiesJSON()
+{
+  String output;
+  StaticJsonDocument<384> doc;
+  doc["local_http_api"] = true;
+  doc["direct_wifi_ap_mode"] = true;
+  doc["browser_interface"] = true;
+  doc["legacy_api"] = true;
+  doc["remote_display_endpoints"] = true;
+  doc["printer_endpoints"] = true;
+  doc["websocket_live_updates"] = true;
+  doc["websocket_endpoint"] = "/api/v1/ws";
+  doc["server_sent_events"] = false;
+  doc["station_wifi"] = false;
+  doc["bluetooth"] = false;
+  serializeJson(doc, output);
+  return output;
+}
+
+void handleWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg,
+                          uint8_t *data, size_t len)
+{
+  (void)server;
+  (void)arg;
+  (void)data;
+  (void)len;
+  if (type == WS_EVT_CONNECT)
+  {
+    client->text(scale.getApiJSON());
+  }
+}
+
+void publishScaleUpdates()
+{
+  static String lastStateKey;
+  static unsigned long lastCleanupMs = 0;
+  static unsigned long lastPublishMs = 0;
+  unsigned long now = millis();
+
+  if (now - lastCleanupMs >= 1000)
+  {
+    ws.cleanupClients();
+    lastCleanupMs = now;
+  }
+
+  if (now - lastPublishMs < 250)
+  {
+    return;
+  }
+
+  String stateKey = scale.getApiStateKey();
+  if (stateKey != lastStateKey)
+  {
+    lastStateKey = stateKey;
+    lastPublishMs = now;
+    ws.textAll(scale.getApiJSON());
+  }
 }
 
 String processStringForRemote(String weight, String oz)

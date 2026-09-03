@@ -175,6 +175,81 @@ int countDecimalPlaces(const char* str) {
   return count;
 }
 
+String Scale::normalizeWeightString(const String &value) const {
+  String normalized = value;
+  normalized.trim();
+  return normalized;
+}
+
+bool Scale::parseWeightString(const String &value, float &parsedWeight) const {
+  String normalized = normalizeWeightString(value);
+  if (normalized.length() == 0 || normalized == "---") {
+    return false;
+  }
+
+  if (normalized.indexOf("lb") != -1 && normalized.indexOf("oz") != -1) {
+    int lbIndex = normalized.indexOf("lb");
+    int ozIndex = normalized.indexOf("oz");
+    String pounds = normalized.substring(0, lbIndex);
+    String ounces = normalized.substring(lbIndex + 2, ozIndex);
+    pounds.trim();
+    ounces.trim();
+    parsedWeight = pounds.toFloat() + (ounces.toFloat() / 16.0f);
+    return true;
+  }
+
+  parsedWeight = normalized.toFloat();
+  return true;
+}
+
+String Scale::getApiUnits() const {
+  switch (units) {
+    case KG:
+      return "kg";
+    case LB:
+    case LBOZ:
+      return "lb";
+    default:
+      return "";
+  }
+}
+
+String Scale::getApiUnitMode() const {
+  switch (units) {
+    case KG:
+      return "kg";
+    case LB:
+      return "lb";
+    case LBOZ:
+      return "lb_oz";
+    default:
+      return "unknown";
+  }
+}
+
+String Scale::getApiLockState() const {
+  if (isLocked) {
+    return "locked";
+  }
+  if (atof(weight) <= 0.0f) {
+    return "ready";
+  }
+  return "calculating";
+}
+
+String Scale::getApiStatus() const {
+  switch (status) {
+    case VALID:
+      return "valid";
+    case MOTION:
+      return "motion";
+    case OVERUNDER:
+      return "over_under";
+    default:
+      return "unknown";
+  }
+}
+
 /**
  * @brief read scale RS232 signal
  *
@@ -721,4 +796,47 @@ String Scale::getJSON() {
   serializeJson(doc, output);
 
   return output;
+}
+
+String Scale::getApiJSON() {
+  String output;
+  StaticJsonDocument<768> doc;
+  float parsedWeight = 0.0f;
+  const String currentWeight = getWeight();
+
+  doc["weight"] = parseWeightString(currentWeight, parsedWeight) ? parsedWeight : nullptr;
+  doc["units"] = getApiUnits();
+  doc["unit_mode"] = getApiUnitMode();
+  doc["display_weight"] = currentWeight;
+  doc["locked"] = isLocked;
+  doc["lock_state"] = getApiLockState();
+  doc["stable"] = (status == VALID);
+  doc["status"] = getApiStatus();
+  doc["lock_sequence"] = lockedCounter;
+  doc["gross_net"] = (tareMode == GROSS) ? "gross" : "net";
+  doc["gross"] = (tareMode == GROSS);
+  doc["net"] = (tareMode == NET);
+  doc["valid"] = (status == VALID);
+  doc["motion"] = (status == MOTION);
+  doc["over_under"] = (status == OVERUNDER);
+  doc["has_signal"] = hasSignalFlag;
+
+  JsonArray recentLocked = doc.createNestedArray("recent_locked_weights");
+  const String recentValues[] = {getLastLocked(), getLast2(), getLast3(), getLast4(), getLast5()};
+  for (const String &recentValue : recentValues) {
+    float parsedRecent = 0.0f;
+    if (parseWeightString(recentValue, parsedRecent)) {
+      recentLocked.add(parsedRecent);
+    } else {
+      recentLocked.add(nullptr);
+    }
+  }
+
+  serializeJson(doc, output);
+  return output;
+}
+
+String Scale::getApiStateKey() {
+  return getWeight() + "|" + getUnits() + "|" + getLockStatus() + "|" + getStatus() + "|" + getTareMode() + "|" +
+         String(lockedCounter) + "|" + getLastLocked() + "|" + String(hasSignalFlag ? 1 : 0);
 }

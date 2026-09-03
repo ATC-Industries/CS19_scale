@@ -10,14 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New versioned API endpoints for third-party integrations.
+- `GET /api/v1/scale` for machine-readable scale data.
+- `GET /api/v1/device` for device metadata.
+- `GET /api/v1/capabilities` for implemented feature reporting.
+- `WS /api/v1/ws` for live structured scale updates.
 - Device and firmware information in API responses.
+- Deterministic device IDs derived from ESP32 hardware identity.
 - Improved structured scale data intended for software integrations.
 
-### In Progress
+### Changed
 
-- Evaluate WebSocket support for live scale updates.
-- Define normalized weight and status response formats.
-- Maintain backward compatibility with `/v1/scale/data`.
+- Firmware version now reports `1.5.0`.
+- `/v1/scale/data` and `/v1/getJSON` remain unchanged for compatibility while `/api/v1/...` is the preferred namespace for new integrations.
+- Documentation now distinguishes versioned API routes, legacy compatibility routes, and implemented live-update behavior.
 
 ### Deprecated
 

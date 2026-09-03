@@ -17,6 +17,10 @@
 
 class Scale {
     private:
+        enum Units { LB, LBOZ, KG, NOTUSED };
+        enum Taremode { NET, GROSS };
+        enum Status { VALID, MOTION, OVERUNDER };
+
         bool printModeAuto = true;
 
         char radio_rx_array[31];        // array being recieved on xbee radio
@@ -36,9 +40,6 @@ class Scale {
         int lockLedBlue = 14;                      // green lock len on front panel
         int scale_print_button = 32;               //this pin generates an interrupt when activity is deteced on serial port controlled by console print button
         char rx2_buffer[25];                       //rs 232 port 2 recieve string from scale
-        enum Units { LB, LBOZ, KG, NOTUSED };    // Units datatype
-        enum Taremode { NET, GROSS };
-        enum Status { VALID, MOTION, OVERUNDER };
         int unitsBtnCounter = 0;
 
         // Scale Statuses
@@ -82,6 +83,12 @@ class Scale {
         void ledOff(int ledNum);
 
         void ledRGBStatus(bool, bool, bool);
+        String normalizeWeightString(const String &value) const;
+        bool parseWeightString(const String &value, float &parsedWeight) const;
+        String getApiUnits() const;
+        String getApiUnitMode() const;
+        String getApiLockState() const;
+        String getApiStatus() const;
     public:
 
         /**
@@ -148,6 +155,8 @@ class Scale {
         static void changePrintStatus(bool status);
         bool isAuto;
         String getJSON();
+        String getApiJSON();
+        String getApiStateKey();
     
 
         

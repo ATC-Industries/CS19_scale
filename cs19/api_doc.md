@@ -2,19 +2,133 @@
 
 The CS19 exposes a small HTTP interface over its local Wi-Fi network.
 
-The primary endpoint intended for software integrations is:
-
-```http
-GET http://192.168.1.184/v1/scale/data
-```
-
 Unless otherwise noted, the endpoints documented here are served directly by the CS19 controller over HTTP port 80.
 
-> **Important:** Some older endpoints remain in the firmware for compatibility with existing CS19 components and integrations. New software should use `/v1/scale/data` unless there is a specific reason to use one of the legacy interfaces.
+> **Important:** Firmware `1.5.0` adds a versioned `/api/v1/...` namespace for new integrations. Older endpoints remain in the firmware for compatibility and are documented separately below.
 
 ---
 
 # Supported Integration API
+
+## Versioned API For New Integrations
+
+Preferred endpoints for new software integrations:
+
+```http
+GET /api/v1/scale
+GET /api/v1/device
+GET /api/v1/capabilities
+WS  /api/v1/ws
+```
+
+## Get Structured Scale Data
+
+### Endpoint
+
+```http
+GET /api/v1/scale
+```
+
+### Example Response
+
+```json
+{
+  "weight": 12.45,
+  "units": "lb",
+  "unit_mode": "lb",
+  "display_weight": "   12.45",
+  "locked": false,
+  "lock_state": "calculating",
+  "stable": false,
+  "status": "motion",
+  "lock_sequence": 151,
+  "gross_net": "gross",
+  "gross": true,
+  "net": false,
+  "valid": false,
+  "motion": true,
+  "over_under": false,
+  "has_signal": true,
+  "recent_locked_weights": [12.45, 11.92, 10.37, 9.84, 8.71]
+}
+```
+
+### Response Notes
+
+- `weight` is normalized numeric data.
+- `units` is the normalized numeric unit.
+- `unit_mode` reflects the scale's active display mode. In `lb_oz` mode, `weight` is normalized to pounds.
+- `display_weight` preserves the current display-oriented formatting.
+- `locked` is a boolean lock state.
+- `lock_state` is one of `ready`, `calculating`, or `locked`.
+- `stable`, `valid`, `motion`, and `over_under` expose the current measurement state without requiring string parsing.
+- `gross_net`, `gross`, and `net` expose the tare/gross mode.
+- `recent_locked_weights` contains the most recent locked weights as numbers where parsing is reliable, otherwise `null`.
+
+## Get Device Metadata
+
+### Endpoint
+
+```http
+GET /api/v1/device
+```
+
+### Example Response
+
+```json
+{
+  "model": "CS19",
+  "firmware_version": "1.5.0",
+  "api_version": "1.0",
+  "device_id": "CS19-1A2B00C0FFEE"
+}
+```
+
+The `device_id` is derived from the ESP32 hardware identity and is deterministic for each physical unit.
+
+## Get Supported Capabilities
+
+### Endpoint
+
+```http
+GET /api/v1/capabilities
+```
+
+### Example Response
+
+```json
+{
+  "local_http_api": true,
+  "direct_wifi_ap_mode": true,
+  "browser_interface": true,
+  "legacy_api": true,
+  "remote_display_endpoints": true,
+  "printer_endpoints": true,
+  "websocket_live_updates": true,
+  "websocket_endpoint": "/api/v1/ws",
+  "server_sent_events": false,
+  "station_wifi": false,
+  "bluetooth": false
+}
+```
+
+## Live Updates
+
+### Endpoint
+
+```http
+WS /api/v1/ws
+```
+
+The WebSocket feed sends the same JSON structure used by `GET /api/v1/scale`.
+
+Clients receive:
+
+- one snapshot immediately on connect
+- later updates when the scale state changes
+- no more than one broadcast every 250 ms
+
+Server-Sent Events at `/events` are not currently implemented for client use.
 
 ## Get Scale Data
 
@@ -28,7 +142,7 @@ GET /v1/scale/data
 
 Returns the current CS19 scale state as JSON.
 
-This is the **preferred endpoint for new software integrations**.
+This is the legacy compatibility endpoint for existing integrations.
 
 ### Parameters
 
@@ -471,15 +585,11 @@ The existing API was originally developed to expose CS19 scale information local
 
 Known limitations include:
 
-* Weight is returned as a formatted string rather than a normalized numeric value.
-* Pounds/ounces mode is represented indirectly through the current unit and formatting conventions.
-* Scale/device identity is not exposed.
-* Firmware version is not exposed through the API.
-* API version information is not returned in responses.
-* There is no capabilities endpoint.
+* `/v1/scale/data` returns formatted strings for compatibility.
+* Recent locked weights in `/api/v1/scale` are normalized from stored display-oriented values on a best-effort basis.
 * There is no structured error-response format.
-* Applications currently need to poll for changes.
-* There is no formal event/subscription interface.
+* Applications using only the legacy API still need to poll for changes.
+* Live updates are currently available only through the WebSocket endpoint, not Server-Sent Events or a broader subscription protocol.
 * The API is available only through the CS19's local Wi-Fi network.
 * The CS19 cannot currently join an arbitrary customer Wi-Fi network.
 * There is no supported Bluetooth API.
@@ -492,31 +602,17 @@ The following items are possible areas for future development.
 
 They are **not committed features or a development schedule**.
 
-## More Formal Versioned API
+## Versioned API Extensions
 
-A future API revision could establish a consistent namespace such as:
+The `/api/v1/...` namespace now exists.
 
-```text
-/api/v1/
-```
-
-while retaining existing endpoints for backward compatibility where practical.
-
-Potential endpoints could include:
-
-```http
-GET /api/v1/scale
-GET /api/v1/device
-GET /api/v1/capabilities
-```
-
-The exact structure has not been determined.
+Future work, if needed, should extend the existing namespace rather than introducing another incompatible local API.
 
 ---
 
 ## Normalized Measurement Data
 
-Future responses could provide numeric values separately from human-readable/display formatting.
+`/api/v1/scale` now provides normalized numeric values alongside `display_weight` for compatibility with current scale formatting.
 
 For example:
 
